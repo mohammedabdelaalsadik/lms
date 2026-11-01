@@ -1,3 +1,4 @@
+import { LIVE_CLASSES_ENABLED } from '../../core/features';
 import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
@@ -72,6 +73,7 @@ import { RejectDialog } from './reject-dialog';
   `,
 })
 export class CohortDetail {
+  protected readonly liveClasses = LIVE_CLASSES_ENABLED;
   private readonly cohorts = inject(CohortService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);

@@ -1,3 +1,4 @@
+import { LIVE_CLASSES_ENABLED } from '../../core/features';
 import { httpResource } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, computed, effect, inject, input, linkedSignal, signal } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -24,6 +25,7 @@ import { LEARNING_URL, LearningService } from './learning.service';
   styleUrl: './player.scss',
 })
 export class PlayerPage implements OnInit, OnDestroy {
+  protected readonly liveClasses = LIVE_CLASSES_ENABLED;
   private readonly sanitizer = inject(DomSanitizer);
   private readonly onMessage = (event: MessageEvent): void => {
     if (event.data?.type === 'lms-scorm-saved') {

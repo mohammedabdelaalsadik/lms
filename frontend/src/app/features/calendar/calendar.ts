@@ -1,3 +1,4 @@
+import { LIVE_CLASSES_ENABLED } from '../../core/features';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -29,6 +30,7 @@ export const KIND_ICONS = { start: 'flag', end: 'sports_score', quiz: 'quiz', li
   styleUrl: './calendar.scss',
 })
 export class CalendarPage implements OnInit {
+  protected readonly liveClasses = LIVE_CLASSES_ENABLED;
   private readonly calendar = inject(CalendarService);
   private readonly languages = inject(LanguageService);
   private readonly translate = inject(TranslateService);

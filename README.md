@@ -121,3 +121,7 @@ npm --prefix frontend test -- --watch=false
 - All user-facing text exists in Arabic and English. Layout uses logical CSS properties.
 - National IDs are encrypted at rest, masked in responses, and never put in logs or domain events.
 - Development and test data are always made up. Never copy production personal data here.
+
+## Hidden features
+
+Live classes are hidden until BigBlueButton is connected. To show them, set `LiveClasses:Enabled` to `true` on the API and `LIVE_CLASSES_ENABLED` to `true` in `frontend/src/app/core/features.ts`.

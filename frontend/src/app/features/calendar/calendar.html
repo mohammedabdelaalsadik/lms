@@ -9,7 +9,9 @@
       <span class="tag end">{{ 'calendar.kind.end' | translate }}</span>
       <span class="tag quiz">{{ 'calendar.kind.quiz' | translate }}</span>
       <span class="tag assignment">{{ 'calendar.kind.assignment' | translate }}</span>
-      <span class="tag live">{{ 'calendar.kind.live' | translate }}</span>
+      @if (liveClasses) {
+        <span class="tag live">{{ 'calendar.kind.live' | translate }}</span>
+      }
     </div>
   </header>
 

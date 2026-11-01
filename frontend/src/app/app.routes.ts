@@ -1,3 +1,4 @@
+import { LIVE_CLASSES_ENABLED } from './core/features';
 import { Routes } from '@angular/router';
 import { authGuard, guestGuard, mfaSetupGuard, roleGuard } from './core/auth/guards';
 
@@ -264,6 +265,7 @@ export const routes: Routes = [
       {
         path: 'live/:cohortId',
         title: 'live.title',
+        canMatch: [() => LIVE_CLASSES_ENABLED],
         canActivate: [roleGuard('Admin', 'Coordinator', 'Instructor', 'Trainee')],
         loadComponent: () => import('./features/learning/live-classes').then((m) => m.LiveClasses),
       },

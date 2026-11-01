@@ -370,7 +370,9 @@ public static class LearningModule
         services.AddScoped<ActivityCompleter>();
         services.AddScoped<ILiveClassRepository, LiveClassRepository>();
         services.AddScoped<LiveClassAccess>();
-        services.AddScoped<ILiveClassSchedule, LiveClassSchedule>();
+        services.AddScoped<ILiveClassSchedule>(provider => bool.TryParse(provider.GetRequiredService<IConfiguration>()["LiveClasses:Enabled"], out var enabled) && enabled
+            ? ActivatorUtilities.CreateInstance<LiveClassSchedule>(provider)
+            : new HiddenLiveClassSchedule());
         services.AddScoped<LiveClassOpener>();
         services.AddSingleton<ILiveClassServer, BigBlueButtonServer>();
         services.AddHostedService<LiveClassScheduledProcessor>();

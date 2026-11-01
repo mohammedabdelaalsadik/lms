@@ -17,7 +17,9 @@
         <p>{{ cohort.name | localized }}</p>
       </div>
       <div class="header-actions">
-        <a matButton="outlined" [routerLink]="['/live', id()]"><mat-icon>videocam</mat-icon>{{ 'live.title' | translate }}</a>
+        @if (liveClasses) {
+            <a matButton="outlined" [routerLink]="['/live', id()]"><mat-icon>videocam</mat-icon>{{ 'live.title' | translate }}</a>
+        }
         <a matButton="outlined" [routerLink]="['/wiki', id()]"><mat-icon>edit_note</mat-icon>{{ 'wiki.title' | translate }}</a>
         <a matButton="outlined" [routerLink]="['/cohorts', id(), 'workshops']"><mat-icon>rate_review</mat-icon>{{ 'workshops.title' | translate }}</a>
         <a matButton="outlined" [routerLink]="['/cohorts', id(), 'forms']"><mat-icon>ballot</mat-icon>{{ 'forms.resultsTitle' | translate }}</a>

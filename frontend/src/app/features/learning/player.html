@@ -18,7 +18,9 @@
       </div>
       <div class="header-actions">
         <a matButton="outlined" [routerLink]="['/glossary', view.courseId]"><mat-icon>dictionary</mat-icon>{{ 'glossary.title' | translate }}</a>
-        <a matButton="outlined" [routerLink]="['/live', cohortId()]"><mat-icon>videocam</mat-icon>{{ 'live.title' | translate }}</a>
+        @if (liveClasses) {
+            <a matButton="outlined" [routerLink]="['/live', cohortId()]"><mat-icon>videocam</mat-icon>{{ 'live.title' | translate }}</a>
+        }
         <a matButton="outlined" [routerLink]="['/wiki', cohortId()]"><mat-icon>edit_note</mat-icon>{{ 'wiki.title' | translate }}</a>
         <a matButton="outlined" [routerLink]="['/learn', cohortId(), 'workshops']"><mat-icon>rate_review</mat-icon>{{ 'workshops.title' | translate }}</a>
         <a matButton="outlined" [routerLink]="['/learn', cohortId(), 'assessments']">

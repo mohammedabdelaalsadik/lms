@@ -1,3 +1,4 @@
+import { LIVE_CLASSES_ENABLED } from '../../core/features';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
@@ -59,6 +60,10 @@ export class CalendarService {
 
   /** A cohort whose classes cannot be read simply shows none. */
   private async liveClasses(cohortIds: string[]): Promise<CalendarEvent[]> {
+    if (!LIVE_CLASSES_ENABLED) {
+      return [];
+    }
+
     const lists = await Promise.allSettled(
       cohortIds.map(async (id) => ({
         id,

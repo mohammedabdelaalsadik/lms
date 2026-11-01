@@ -75,6 +75,13 @@ public sealed class LiveClassSchedule(ILiveClassRepository classes, TimeProvider
     }
 }
 
+/// <summary>Used while live classes are switched off, so none reach the To do list.</summary>
+public sealed class HiddenLiveClassSchedule : ILiveClassSchedule
+{
+    public Task<IReadOnlyList<UpcomingLiveClass>> ListOpenAsync(Guid cohortId, CancellationToken cancellationToken) =>
+        Task.FromResult<IReadOnlyList<UpcomingLiveClass>>([]);
+}
+
 public sealed record LiveAttendee(TextDto Name, DateTimeOffset JoinedAt);
 
 public sealed record LiveClassItem(Guid Id, TextDto Title, DateTimeOffset StartsAt, int DurationMinutes, LiveClassStatus Status, bool CanStart, IReadOnlyList<LiveAttendee> Attendees);

@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Lms.BuildingBlocks.Application;
 using Lms.BuildingBlocks.Presentation;
 using Lms.Modules.Learning.Application;
@@ -36,7 +39,21 @@ public sealed record SaveAttendanceRequest(DateOnly Date, IReadOnlyList<Attendan
 
 public sealed record LiveClassRequest(string TitleAr, string TitleEn, DateTimeOffset StartsAt, int DurationMinutes);
 
+/// <summary>Live classes answer as if absent until `LiveClasses:Enabled` is true.</summary>
+public sealed class LiveClassesEnabledAttribute : ActionFilterAttribute
+{
+    public override void OnActionExecuting(ActionExecutingContext context)
+    {
+        var configuration = context.HttpContext.RequestServices.GetRequiredService<IConfiguration>();
+        if (!bool.TryParse(configuration["LiveClasses:Enabled"], out var enabled) || !enabled)
+        {
+            context.Result = new NotFoundResult();
+        }
+    }
+}
+
 [Authorize]
+[LiveClassesEnabled]
 [Route("api/v1/learning/cohorts/{cohortId:guid}/live")]
 public sealed class LiveClassesController(IDispatcher dispatcher) : ApiController(dispatcher)
 {
