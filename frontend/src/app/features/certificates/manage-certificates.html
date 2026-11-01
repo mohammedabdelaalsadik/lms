@@ -20,6 +20,8 @@
       [value]="filters.values.status()"
       (valueChange)="filters.set('status', $event)"
     />
+    <app-date-field class="date" [clearable]="true" [label]="'filters.issuedFrom' | translate" [max]="filters.values.to() || null" [ngModel]="filters.values.from()" (ngModelChange)="filters.set('from', $event)" />
+    <app-date-field class="date" [clearable]="true" [label]="'filters.issuedTo' | translate" [min]="filters.values.from() || null" [ngModel]="filters.values.to()" (ngModelChange)="filters.set('to', $event)" />
   </app-filter-bar>
 
   <section class="panel">

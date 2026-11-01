@@ -41,7 +41,7 @@
           [value]="filters.values.category()"
           (selectionChange)="filters.set('category', $event.value)"
         >
-          <mat-option value="">{{ 'common.all' | translate }}</mat-option>
+          <mat-option value="">{{ 'filters.allCategories' | translate }}</mat-option>
           @for (row of categories(); track row.id) {
             <mat-option [value]="row.id">{{ row.name | localized }}</mat-option>
           }
@@ -61,15 +61,32 @@
       <ul class="rows">
         @for (course of data()!.items; track course.id) {
           <li class="row">
+            <span class="tile" aria-hidden="true"><mat-icon>menu_book</mat-icon></span>
+
             <div class="main">
               <div class="heading">
+                <h2>
+                  @if (canEditContent()) {
+                    <a [routerLink]="['/courses', course.id, 'content']">{{ course.title | localized }}</a>
+                  } @else {
+                    {{ course.title | localized }}
+                  }
+                </h2>
                 <span class="code ltr-value">{{ course.code }}</span>
-                <h2>{{ course.title | localized }}</h2>
+                @if (categoryName(course); as name) {
+                  <span class="category-name">{{ name | localized }}</span>
+                }
               </div>
-              @if (categoryName(course); as name) {
-                <small class="category-name">{{ name | localized }}</small>
-              }
               <p>{{ course.description | localized }}</p>
+
+              @if (canEditContent()) {
+                <nav class="shortcuts" [attr.aria-label]="course.title | localized">
+                  <a [routerLink]="['/courses', course.id, 'content']"><mat-icon aria-hidden="true">library_books</mat-icon>{{ 'content.manage' | translate }}</a>
+                  <a [routerLink]="['/courses', course.id, 'questions']"><mat-icon aria-hidden="true">quiz</mat-icon>{{ 'bank.title' | translate }}</a>
+                  <a [routerLink]="['/glossary', course.id]"><mat-icon aria-hidden="true">menu_book</mat-icon>{{ 'glossary.title' | translate }}</a>
+                  <a [routerLink]="['/courses', course.id, 'bin']"><mat-icon aria-hidden="true">delete</mat-icon>{{ 'bin.title' | translate }}</a>
+                </nav>
+              }
             </div>
 
             <div class="meta">
@@ -79,6 +96,8 @@
               </span>
               @if (canEditContent()) {
                 <app-status-chip [status]="course.status" />
+              }
+              @if (canManage()) {
                 <button
                   matIconButton
                   [matMenuTriggerFor]="actions"
@@ -87,10 +106,7 @@
                   <mat-icon>more_vert</mat-icon>
                 </button>
                 <mat-menu #actions="matMenu">
-                  <a mat-menu-item [routerLink]="['/courses', course.id, 'content']">
-                    <mat-icon>library_books</mat-icon>{{ 'content.manage' | translate }}
-                  </a>
-                  @if (canManage() && categories().length > 0) {
+                  @if (categories().length > 0) {
                     <button mat-menu-item [matMenuTriggerFor]="move">
                       <mat-icon>drive_file_move</mat-icon>{{ 'categories.move' | translate }}
                     </button>
@@ -105,10 +121,7 @@
                       }
                     </mat-menu>
                   }
-                  <a mat-menu-item [routerLink]="['/courses', course.id, 'questions']">
-                    <mat-icon>quiz</mat-icon>{{ 'bank.title' | translate }}
-                  </a>
-                  @if (canManage() && course.status === 'Draft') {
+                  @if (course.status === 'Draft') {
                     <button mat-menu-item (click)="openForm(course)">
                       <mat-icon>edit</mat-icon>{{ 'common.edit' | translate }}
                     </button>
@@ -116,7 +129,7 @@
                       <mat-icon>publish</mat-icon>{{ 'courses.publish' | translate }}
                     </button>
                   }
-                  @if (canManage() && course.status === 'Published') {
+                  @if (course.status === 'Published') {
                     <button mat-menu-item (click)="archive(course)">
                       <mat-icon>inventory_2</mat-icon>{{ 'courses.archive' | translate }}
                     </button>

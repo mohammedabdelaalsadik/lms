@@ -57,6 +57,12 @@ html {
   --deep-3: #042534;
   --gold: #ffd27a;
 
+  // The side menu follows the theme: deep teal in light mode, quiet charcoal in dark mode.
+  --nav-1: light-dark(var(--deep-1), #16252d);
+  --nav-2: light-dark(var(--deep-2), #111e25);
+  --nav-3: light-dark(var(--deep-3), #0c171d);
+  --nav-glow: light-dark(rgb(255 122 89 / 9%), rgb(92 203 227 / 6%));
+
   // The deep teal scene with an amber and a coral glow, used for the sign-in panel and the welcome banner.
   --brand-scene:
     radial-gradient(44rem 25rem at 100% 0%, rgb(255 185 48 / 35%), transparent 60%),
@@ -227,8 +233,6 @@ a {
   flex-direction: column;
   gap: var(--space-6);
   width: 100%;
-  max-width: 1200px;
-  margin-inline: auto;
   padding: var(--space-6) var(--space-4);
   animation: page-in 0.52s cubic-bezier(0.22, 1, 0.36, 1) both;
 
@@ -299,12 +303,50 @@ tr.mat-mdc-row {
 
 .mat-mdc-paginator {
   border-block-start: 1px solid var(--line);
+  background: var(--mat-sys-surface-container-low);
+  color: var(--mat-sys-on-surface-variant);
+  font-variant-numeric: tabular-nums;
 }
 
-// Fields on the page background stay readable against the grey.
-.filters .mdc-text-field--outlined {
-  background: var(--mat-sys-surface);
+.mat-mdc-paginator-container {
+  gap: var(--space-2) var(--space-4);
+  min-height: 3.25rem;
+  padding-inline: var(--space-3);
+}
+
+.mat-mdc-paginator-range-label {
+  margin-inline: var(--space-2);
+  font-weight: 600;
+}
+
+.mat-mdc-paginator .mat-mdc-icon-button:not(:disabled) {
+  color: var(--brand-link);
+
+  &:hover {
+    background: color-mix(in srgb, var(--brand-primary) 12%, transparent);
+  }
+}
+
+// Every field shares one soft surface, a hover edge and a teal ring on focus.
+.mdc-text-field--outlined {
   border-radius: var(--radius-s);
+  background: var(--mat-sys-surface-container-low);
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  &.mdc-text-field--focused {
+    background: var(--mat-sys-surface);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-primary) 18%, transparent);
+  }
+
+  &.mdc-text-field--invalid.mdc-text-field--focused {
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--mat-sys-error) 18%, transparent);
+  }
+
+  &.mdc-text-field--disabled {
+    background: var(--mat-sys-surface-container);
+  }
 }
 
 .mdc-button {

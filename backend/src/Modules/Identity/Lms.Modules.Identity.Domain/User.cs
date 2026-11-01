@@ -30,6 +30,7 @@ public static class UserErrors
     public static readonly Error UploadName = Error.Validation("identity.upload_name", "Both names are needed.");
     public static readonly Error UploadEmail = Error.Validation("identity.upload_email", "The email is not valid.");
     public static readonly Error UploadRole = Error.Validation("identity.upload_role", "This role cannot be given by file.");
+    public static readonly Error CannotChangeOwnAccount = Error.Conflict("identity.cannot_change_own_account", "Another administrator must do this.");
     public static readonly Error CannotChangeOwnRole = Error.Conflict("identity.cannot_change_own_role", "You cannot change your own role.");
 }
 
@@ -119,6 +120,8 @@ public sealed class User : AggregateRoot<UserId>
     public bool MfaEnabled => MfaEnabledAt is not null;
     public DateTimeOffset? ErasedAt { get; private set; }
     public bool IsErased => ErasedAt is not null;
+    public DateTimeOffset? DeactivatedAt { get; private set; }
+    public bool IsActive => DeactivatedAt is null && !IsErased;
 
     /// <summary>
     /// Keeps the row, because grades and certificates point at it, and removes everything that identifies the person.
@@ -255,4 +258,20 @@ public sealed class User : AggregateRoot<UserId>
     public void ChangeLanguage(Language language) => Language = language;
 
     public void ChangeRole(Role role) => Role = role;
+
+    public void ChangeProfile(LocalizedText fullName, string email)
+    {
+        FullName = fullName;
+        Email = NormalizeEmail(email);
+    }
+
+    /// <summary>The account stays, with its grades and certificates, but nobody can sign in to it.</summary>
+    public void Deactivate(DateTimeOffset now)
+    {
+        DeactivatedAt ??= now;
+        ResetTokenHash = null;
+        ResetExpiresAt = null;
+    }
+
+    public void Reactivate() => DeactivatedAt = null;
 }

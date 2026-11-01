@@ -42,6 +42,11 @@ import { TranslatePipe } from '@ngx-translate/core';
     .bar {
       display: grid;
       gap: var(--space-3);
+      padding: var(--space-3);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-m);
+      background: var(--mat-sys-surface);
+      box-shadow: var(--shadow-card);
     }
     .row {
       display: flex;
@@ -59,7 +64,7 @@ import { TranslatePipe } from '@ngx-translate/core';
       gap: var(--space-2);
       min-height: 2.75rem;
       padding-inline: var(--space-3);
-      background: var(--mat-sys-surface);
+      background: var(--mat-sys-surface-container-low);
       border: 1px solid var(--line);
       border-radius: var(--radius-s);
       color: var(--mat-sys-on-surface-variant);
@@ -67,8 +72,13 @@ import { TranslatePipe } from '@ngx-translate/core';
         border-color 0.15s ease,
         box-shadow 0.15s ease;
 
+      &:hover {
+        border-color: var(--mat-sys-outline);
+      }
+
       &:focus-within {
         border-color: var(--brand-primary);
+        background: var(--mat-sys-surface);
         box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand-primary) 18%, transparent);
       }
     }
@@ -106,8 +116,11 @@ import { TranslatePipe } from '@ngx-translate/core';
       flex: 1;
     }
     .count {
+      padding: 0.125rem var(--space-2);
+      border-radius: 999px;
+      background: var(--mat-sys-surface-container);
       color: var(--mat-sys-on-surface-variant);
-      font: var(--mat-sys-body-small);
+      font: var(--mat-sys-label-medium);
       white-space: nowrap;
     }
   `,

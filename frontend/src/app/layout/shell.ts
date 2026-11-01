@@ -30,6 +30,15 @@ interface NavGroup {
 }
 
 const CLOSED_KEY = 'lms.nav.closed';
+const RAIL_KEY = 'lms.nav.rail';
+
+function readRail(): boolean {
+  try {
+    return localStorage.getItem(RAIL_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
 
 function readClosed(): string[] {
   try {
@@ -115,6 +124,11 @@ export class Shell {
     { initialValue: false },
   );
 
+  private readonly railChosen = signal(readRail());
+
+  /** Icons only on a wide screen. A phone always gets the full menu in its drawer. */
+  protected readonly isRail = computed(() => this.railChosen() && !this.isCompact());
+
   protected readonly navGroups = computed(() =>
     NAV_GROUPS.map((group) => ({
       ...group,
@@ -149,6 +163,17 @@ export class Shell {
 
     try {
       localStorage.setItem(CLOSED_KEY, JSON.stringify(this.closed()));
+    } catch {
+      // The menu still works. It just forgets on the next visit.
+    }
+  }
+
+  protected toggleRail(): void {
+    this.railChosen.update((rail) => !rail);
+    this.filter.set('');
+
+    try {
+      localStorage.setItem(RAIL_KEY, String(this.railChosen()));
     } catch {
       // The menu still works. It just forgets on the next visit.
     }

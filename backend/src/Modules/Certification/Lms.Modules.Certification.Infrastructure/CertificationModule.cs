@@ -191,6 +191,18 @@ internal sealed class CertificateRepository(CertificationDbContext db) : ICertif
     {
         var query = db.Certificates.AsNoTracking();
 
+        if (filter.From is { } from)
+        {
+            var start = new DateTimeOffset(from.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
+            query = query.Where(c => c.IssuedAt >= start);
+        }
+
+        if (filter.To is { } to)
+        {
+            var end = new DateTimeOffset(to.AddDays(1).ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
+            query = query.Where(c => c.IssuedAt < end);
+        }
+
         if (filter.Status is { } status)
         {
             query = query.Where(c => c.Status == status);

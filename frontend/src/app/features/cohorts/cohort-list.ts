@@ -2,8 +2,10 @@ import { httpResource } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterLink } from '@angular/router';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -11,7 +13,7 @@ import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { urlFilters } from '../../core/filters/url-filters';
 import { errorKey } from '../../core/http/api-error';
-import { Cohort, Paged } from '../../core/models';
+import { Cohort, Paged, UserOption } from '../../core/models';
 import { AppDatePipe } from '../../shared/app-date.pipe';
 import { ChoiceChips } from '../../shared/choice-chips';
 import { FilterBar } from '../../shared/filter-bar';
@@ -28,8 +30,10 @@ import { COHORTS_URL, CohortService } from './cohort.service';
     FilterBar,
     LocalizedPipe,
     MatButtonModule,
+    MatFormFieldModule,
     MatIconModule,
     MatPaginatorModule,
+    MatSelectModule,
     RouterLink,
     StatePanel,
     TranslatePipe,
@@ -54,7 +58,17 @@ export class CohortList {
     { value: 'Open', labelKey: 'cohortStatus.Open' },
     { value: 'Closed', labelKey: 'cohortStatus.Closed' },
   ];
-  protected readonly filters = urlFilters({ search: '', status: '' });
+  protected readonly periodChoices = [
+    { value: '', labelKey: 'common.all' },
+    { value: 'Upcoming', labelKey: 'filters.upcoming' },
+    { value: 'Running', labelKey: 'filters.running' },
+    { value: 'Ended', labelKey: 'filters.ended' },
+  ];
+  protected readonly filters = urlFilters({ search: '', status: '', period: '', branch: '', instructor: '' });
+  private readonly branchResource = httpResource<string[]>(() => `${COHORTS_URL}/branches`);
+  protected readonly branches = computed(() => (this.branchResource.hasValue() ? this.branchResource.value() : []));
+  private readonly instructorResource = httpResource<UserOption[]>(() => (this.canManage() ? '/api/v1/users/instructors' : undefined));
+  protected readonly instructors = computed(() => (this.instructorResource.hasValue() ? (this.instructorResource.value() ?? []) : []));
   protected readonly pageSize = signal(10);
   protected readonly working = signal<string | null>(null);
 
@@ -65,6 +79,9 @@ export class CohortList {
       pageSize: this.pageSize(),
       ...(this.filters.values.search() ? { search: this.filters.values.search() } : {}),
       ...(this.filters.values.status() ? { status: this.filters.values.status() } : {}),
+      ...(this.filters.values.period() ? { period: this.filters.values.period() } : {}),
+      ...(this.filters.values.branch() ? { branch: this.filters.values.branch() } : {}),
+      ...(this.filters.values.instructor() ? { instructorId: this.filters.values.instructor() } : {}),
     },
   }));
 

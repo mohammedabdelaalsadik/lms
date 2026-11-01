@@ -144,7 +144,7 @@ export class BankQuestionDialog {
         <mat-form-field subscriptSizing="dynamic">
           <mat-label>{{ 'bank.category' | translate }}</mat-label>
           <mat-select [value]="filters.values.category()" (selectionChange)="filters.set('category', $event.value)">
-            <mat-option value="">{{ 'common.all' | translate }}</mat-option>
+            <mat-option value="">{{ 'filters.allCategories' | translate }}</mat-option>
             @for (name of data()?.categories; track name) {
               <mat-option [value]="name">{{ name }}</mat-option>
             }
@@ -153,7 +153,7 @@ export class BankQuestionDialog {
         <mat-form-field subscriptSizing="dynamic">
           <mat-label>{{ 'bank.type' | translate }}</mat-label>
           <mat-select [value]="filters.values.kind()" (selectionChange)="filters.set('kind', $event.value)">
-            <mat-option value="">{{ 'common.all' | translate }}</mat-option>
+            <mat-option value="">{{ 'filters.allTypes' | translate }}</mat-option>
             @for (kind of kindList; track kind) {
               <mat-option [value]="kind">{{ 'bank.kind.' + kind | translate }}</mat-option>
             }

@@ -89,6 +89,14 @@ internal sealed class CohortRepository(EnrollmentDbContext db) : ICohortReposito
 
     public void Add(Cohort cohort) => db.Cohorts.Add(cohort);
 
+    public async Task<IReadOnlyList<string>> ListBranchesAsync(bool onlyEnrollable, DateOnly today, CancellationToken cancellationToken) =>
+        await db.Cohorts.AsNoTracking()
+            .Where(c => !onlyEnrollable || (c.Status == CohortStatus.Open && c.StartsOn > today))
+            .Select(c => c.Branch)
+            .Distinct()
+            .OrderBy(b => b)
+            .ToListAsync(cancellationToken);
+
     public async Task<PagedResult<CohortRow>> ListAsync(CohortFilter filter, CancellationToken cancellationToken)
     {
         var query = db.Cohorts.AsNoTracking();
@@ -98,9 +106,27 @@ internal sealed class CohortRepository(EnrollmentDbContext db) : ICohortReposito
             query = query.Where(c => c.Status == CohortStatus.Open && c.StartsOn > filter.Today);
         }
 
+        query = filter.Period switch
+        {
+            CohortPeriod.Upcoming => query.Where(c => c.StartsOn > filter.Today),
+            CohortPeriod.Running => query.Where(c => c.StartsOn <= filter.Today && c.EndsOn >= filter.Today),
+            CohortPeriod.Ended => query.Where(c => c.EndsOn < filter.Today),
+            _ => query,
+        };
+
         if (filter.Status is { } status)
         {
             query = query.Where(c => c.Status == status);
+        }
+
+        if (!string.IsNullOrWhiteSpace(filter.Branch))
+        {
+            query = query.Where(c => c.Branch == filter.Branch);
+        }
+
+        if (filter.InstructorId is { } instructor)
+        {
+            query = query.Where(c => c.InstructorId == instructor);
         }
 
         if (!string.IsNullOrWhiteSpace(filter.Search))

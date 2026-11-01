@@ -2,7 +2,6 @@ using FluentValidation;
 using Lms.BuildingBlocks.Application;
 using Lms.Modules.Identity.Domain;
 using Lms.SharedKernel;
-using System.Security.Cryptography;
 using System.Text;
 
 namespace Lms.Modules.Identity.Application;
@@ -154,8 +153,6 @@ internal sealed class UploadUsersHandler(
     TimeProvider clock) : IRequestHandler<UploadUsersCommand, UserUploadResponse>
 {
     private const int MaxRows = 1000;
-    private const int PasswordLength = 14;
-    private const string PasswordAlphabet = "ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
     private static readonly string[] Header = ["national_id", "name_ar", "name_en", "email"];
 
     public async Task<Result<UserUploadResponse>> Handle(UploadUsersCommand request, CancellationToken cancellationToken)
@@ -232,7 +229,7 @@ internal sealed class UploadUsersHandler(
 
             if (problem is null && request.Save)
             {
-                var password = RandomNumberGenerator.GetString(PasswordAlphabet, PasswordLength);
+                var password = TemporaryPassword.Create();
                 var user = User.Register(protector.Protect(nationalId.Value), name.Value, normalEmail, passwords.Hash(password), role!.Value, Language.Ar, now);
                 user.RequirePasswordChange();
                 users.Add(user);

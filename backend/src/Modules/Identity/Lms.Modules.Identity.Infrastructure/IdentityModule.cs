@@ -122,13 +122,18 @@ internal sealed class UserRepository(IdentityDbContext db) : IUserRepository
             .Select(u => new UserOption(u.Id.Value, new NameDto(u.FullName.Ar, u.FullName.En)))
             .ToListAsync(cancellationToken);
 
-    public async Task<PagedResult<UserSummary>> ListAsync(string? search, Role? role, int page, int pageSize, CancellationToken cancellationToken)
+    public async Task<PagedResult<UserSummary>> ListAsync(string? search, Role? role, bool? active, int page, int pageSize, CancellationToken cancellationToken)
     {
         var query = db.Users.AsNoTracking();
 
         if (role is { } wanted)
         {
             query = query.Where(u => u.Role == wanted);
+        }
+
+        if (active is { } isActive)
+        {
+            query = query.Where(u => (u.DeactivatedAt == null && u.ErasedAt == null) == isActive);
         }
 
         if (!string.IsNullOrWhiteSpace(search))
@@ -147,7 +152,9 @@ internal sealed class UserRepository(IdentityDbContext db) : IUserRepository
                 new NameDto(u.FullName.Ar, u.FullName.En),
                 u.Email,
                 u.Role,
-                u.CreatedAt))
+                u.CreatedAt,
+                u.DeactivatedAt == null && u.ErasedAt == null,
+                u.ErasedAt != null))
             .ToListAsync(cancellationToken);
 
         return new PagedResult<UserSummary>(items, total, page, pageSize);

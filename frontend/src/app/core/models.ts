@@ -28,6 +28,8 @@ export interface UserSummary {
   email: string;
   role: Role;
   createdAt: string;
+  isActive: boolean;
+  isErased: boolean;
 }
 
 export interface Course {

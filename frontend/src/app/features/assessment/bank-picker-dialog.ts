@@ -38,7 +38,7 @@ import { staffUrl } from './assessment.service';
         <mat-form-field subscriptSizing="dynamic">
           <mat-label>{{ 'bank.category' | translate }}</mat-label>
           <mat-select [value]="category()" (selectionChange)="category.set($event.value)">
-            <mat-option value="">{{ 'common.all' | translate }}</mat-option>
+            <mat-option value="">{{ 'filters.allCategories' | translate }}</mat-option>
             @for (name of data()?.categories; track name) {
               <mat-option [value]="name">{{ name }}</mat-option>
             }

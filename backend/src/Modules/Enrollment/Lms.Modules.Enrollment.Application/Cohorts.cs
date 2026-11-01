@@ -9,7 +9,9 @@ namespace Lms.Modules.Enrollment.Application;
 
 public interface IEnrollmentUnitOfWork : IUnitOfWork;
 
-public sealed record CohortFilter(bool OnlyEnrollable, DateOnly Today, Guid? ViewerId, string? Search, CohortStatus? Status, int Page, int PageSize);
+public enum CohortPeriod { Upcoming, Running, Ended }
+
+public sealed record CohortFilter(bool OnlyEnrollable, DateOnly Today, Guid? ViewerId, string? Search, CohortStatus? Status, int Page, int PageSize, CohortPeriod? Period = null, string? Branch = null, Guid? InstructorId = null);
 
 /// <summary>Flat row read from storage, before names are added from other modules.</summary>
 public sealed record CohortRow(
@@ -37,6 +39,8 @@ public interface ICohortRepository
     void Add(Cohort cohort);
 
     Task<PagedResult<CohortRow>> ListAsync(CohortFilter filter, CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<string>> ListBranchesAsync(bool onlyEnrollable, DateOnly today, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<MyEnrollmentRow>> ListForTraineeAsync(Guid traineeId, CancellationToken cancellationToken);
 }
@@ -120,7 +124,7 @@ internal static class CohortAccess
     public static bool IsManager(this ICurrentUser user) => user.Role is LmsRoles.Admin or LmsRoles.Coordinator;
 }
 
-public sealed record ListCohortsQuery(string? Search, CohortStatus? Status, int Page = 1, int PageSize = 20) : IQuery<PagedResult<CohortResponse>>;
+public sealed record ListCohortsQuery(string? Search, CohortStatus? Status, int Page = 1, int PageSize = 20, CohortPeriod? Period = null, string? Branch = null, Guid? InstructorId = null) : IQuery<PagedResult<CohortResponse>>;
 
 internal sealed class ListCohortsValidator : AbstractValidator<ListCohortsQuery>
 {
@@ -129,6 +133,19 @@ internal sealed class ListCohortsValidator : AbstractValidator<ListCohortsQuery>
         RuleFor(q => q.Page).GreaterThanOrEqualTo(1);
         RuleFor(q => q.PageSize).InclusiveBetween(1, 100);
         RuleFor(q => q.Search).MaximumLength(100);
+        RuleFor(q => q.Branch).MaximumLength(Cohort.BranchMaxLength);
+    }
+}
+
+public sealed record ListCohortBranchesQuery : IQuery<IReadOnlyList<string>>;
+
+internal sealed class ListCohortBranchesHandler(ICohortRepository cohorts, ICurrentUser user, TimeProvider clock)
+    : IRequestHandler<ListCohortBranchesQuery, IReadOnlyList<string>>
+{
+    public async Task<Result<IReadOnlyList<string>>> Handle(ListCohortBranchesQuery request, CancellationToken cancellationToken)
+    {
+        var today = DateOnly.FromDateTime(clock.GetUtcNow().UtcDateTime);
+        return Result<IReadOnlyList<string>>.Success(await cohorts.ListBranchesAsync(user.Role == LmsRoles.Trainee, today, cancellationToken));
     }
 }
 
@@ -138,7 +155,7 @@ internal sealed class ListCohortsHandler(ICohortRepository cohorts, CohortEnrich
     public async Task<Result<PagedResult<CohortResponse>>> Handle(ListCohortsQuery request, CancellationToken cancellationToken)
     {
         var today = DateOnly.FromDateTime(clock.GetUtcNow().UtcDateTime);
-        var filter = new CohortFilter(user.Role == LmsRoles.Trainee, today, user.Id, request.Search, request.Status, request.Page, request.PageSize);
+        var filter = new CohortFilter(user.Role == LmsRoles.Trainee, today, user.Id, request.Search, request.Status, request.Page, request.PageSize, request.Period, request.Branch, request.InstructorId);
 
         var page = await cohorts.ListAsync(filter, cancellationToken);
         var items = await enricher.EnrichAsync(page.Items, cancellationToken);

@@ -54,7 +54,7 @@ internal sealed class RefreshSessionHandler(
         }
 
         var user = await users.FindAsync(stored.UserId, cancellationToken);
-        if (user is null)
+        if (user is null || !user.IsActive)
         {
             return UserErrors.InvalidRefreshToken;
         }

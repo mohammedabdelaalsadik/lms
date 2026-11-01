@@ -93,3 +93,19 @@
   background: var(--mat-sys-surface-container-high);
   color: var(--mat-sys-on-surface-variant);
 }
+
+.filter-group {
+  display: grid;
+  gap: var(--space-1);
+
+  > span {
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-label-small);
+    font-weight: 600;
+  }
+}
+
+.select {
+  flex: 0 1 13rem;
+  min-width: 10rem;
+}

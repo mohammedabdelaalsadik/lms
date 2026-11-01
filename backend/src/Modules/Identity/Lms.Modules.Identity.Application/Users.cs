@@ -62,7 +62,7 @@ public interface IUserRepository
 
     void Add(User user);
 
-    Task<PagedResult<UserSummary>> ListAsync(string? search, Role? role, int page, int pageSize, CancellationToken cancellationToken);
+    Task<PagedResult<UserSummary>> ListAsync(string? search, Role? role, bool? active, int page, int pageSize, CancellationToken cancellationToken);
 
     Task<IReadOnlyList<UserOption>> ListByRoleAsync(Role role, CancellationToken cancellationToken);
 }
@@ -75,7 +75,9 @@ public sealed record UserSummary(
     NameDto FullName,
     string Email,
     Role Role,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    bool IsActive,
+    bool IsErased);
 
 public sealed record CurrentUserResponse(
     Guid Id,
@@ -221,8 +223,8 @@ internal sealed class LoginHandler(
 
         var now = clock.GetUtcNow();
 
-        // A locked account answers exactly like a wrong password, so lockout reveals nothing.
-        if (user.IsLockedOut(now))
+        // A locked or deactivated account answers exactly like a wrong password, so neither reveals anything.
+        if (user.IsLockedOut(now) || !user.IsActive)
         {
             passwords.VerifyAgainstDummy(request.Password);
             return UserErrors.InvalidCredentials;
@@ -307,7 +309,7 @@ internal sealed class RevealNationalIdHandler(IUserRepository users, INationalId
     }
 }
 
-public sealed record ListUsersQuery(string? Search, Role? Role, int Page = 1, int PageSize = 20) : IQuery<PagedResult<UserSummary>>;
+public sealed record ListUsersQuery(string? Search, Role? Role, int Page = 1, int PageSize = 20, bool? Active = null) : IQuery<PagedResult<UserSummary>>;
 
 internal sealed class ListUsersValidator : AbstractValidator<ListUsersQuery>
 {
@@ -322,5 +324,5 @@ internal sealed class ListUsersValidator : AbstractValidator<ListUsersQuery>
 internal sealed class ListUsersHandler(IUserRepository users) : IRequestHandler<ListUsersQuery, PagedResult<UserSummary>>
 {
     public async Task<Result<PagedResult<UserSummary>>> Handle(ListUsersQuery request, CancellationToken cancellationToken) =>
-        await users.ListAsync(request.Search, request.Role, request.Page, request.PageSize, cancellationToken);
+        await users.ListAsync(request.Search, request.Role, request.Active, request.Page, request.PageSize, cancellationToken);
 }

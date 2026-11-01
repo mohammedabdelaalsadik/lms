@@ -17,32 +17,6 @@
         <p>{{ cohort.name | localized }}</p>
       </div>
       <div class="header-actions">
-        @if (liveClasses) {
-            <a matButton="outlined" [routerLink]="['/live', id()]"><mat-icon>videocam</mat-icon>{{ 'live.title' | translate }}</a>
-        }
-        <a matButton="outlined" [routerLink]="['/wiki', id()]"><mat-icon>edit_note</mat-icon>{{ 'wiki.title' | translate }}</a>
-        <a matButton="outlined" [routerLink]="['/cohorts', id(), 'workshops']"><mat-icon>rate_review</mat-icon>{{ 'workshops.title' | translate }}</a>
-        <a matButton="outlined" [routerLink]="['/cohorts', id(), 'forms']"><mat-icon>ballot</mat-icon>{{ 'forms.resultsTitle' | translate }}</a>
-        <a matButton="outlined" [routerLink]="['/cohorts', id(), 'groups']">
-          <mat-icon>diversity_3</mat-icon>
-          {{ 'groups.title' | translate }}
-        </a>
-        <a matButton="outlined" [routerLink]="['/forum', id()]">
-          <mat-icon>forum</mat-icon>
-          {{ 'forum.title' | translate }}
-        </a>
-        <a matButton="outlined" [routerLink]="['/cohorts', id(), 'assessments']">
-          <mat-icon>quiz</mat-icon>
-          {{ 'assessments.title' | translate }}
-        </a>
-        <a matButton="outlined" [routerLink]="['/cohorts', id(), 'attendance']">
-          <mat-icon>fact_check</mat-icon>
-          {{ 'attendance.title' | translate }}
-        </a>
-        <a matButton="outlined" [routerLink]="['/cohorts', id(), 'progress']">
-          <mat-icon>monitoring</mat-icon>
-          {{ 'progress.title' | translate }}
-        </a>
         @if (canManage() && cohort.status === 'Open') {
           <button matButton="outlined" (click)="close()">{{ 'cohorts.close' | translate }}</button>
         }
@@ -63,12 +37,58 @@
       </dl>
     </section>
 
+    <nav class="tools" [attr.aria-label]="'courses.actions' | translate">
+        @if (liveClasses) {
+            <a [routerLink]="['/live', id()]"><mat-icon>videocam</mat-icon>{{ 'live.title' | translate }}</a>
+        }
+        <a [routerLink]="['/wiki', id()]"><mat-icon>edit_note</mat-icon>{{ 'wiki.title' | translate }}</a>
+        <a [routerLink]="['/cohorts', id(), 'workshops']"><mat-icon>rate_review</mat-icon>{{ 'workshops.title' | translate }}</a>
+        <a [routerLink]="['/cohorts', id(), 'forms']"><mat-icon>ballot</mat-icon>{{ 'forms.resultsTitle' | translate }}</a>
+        <a [routerLink]="['/cohorts', id(), 'groups']">
+          <mat-icon>diversity_3</mat-icon>
+          {{ 'groups.title' | translate }}
+        </a>
+        <a [routerLink]="['/forum', id()]">
+          <mat-icon>forum</mat-icon>
+          {{ 'forum.title' | translate }}
+        </a>
+        <a [routerLink]="['/cohorts', id(), 'assessments']">
+          <mat-icon>quiz</mat-icon>
+          {{ 'assessments.title' | translate }}
+        </a>
+        <a [routerLink]="['/cohorts', id(), 'attendance']">
+          <mat-icon>fact_check</mat-icon>
+          {{ 'attendance.title' | translate }}
+        </a>
+        <a [routerLink]="['/cohorts', id(), 'progress']">
+          <mat-icon>monitoring</mat-icon>
+          {{ 'progress.title' | translate }}
+        </a>
+    </nav>
+
+    <section class="roster">
+      <h2>{{ 'roster.traineesTitle' | translate }} <span class="total">{{ data()!.entries.length }}</span></h2>
+
+      <app-filter-bar
+        [label]="'roster.search' | translate"
+        [search]="search()"
+        [count]="shown().length"
+        [active]="(search() ? 1 : 0) + (status() ? 1 : 0)"
+        (searchChange)="find($event)"
+        (clear)="clearFilters()"
+      >
+        @if (statusChoices().length > 2) {
+          <app-choice-chips [label]="'courses.status' | translate" [choices]="statusChoices()" [value]="status()" (valueChange)="setStatus($event)" />
+        }
+      </app-filter-bar>
+    </section>
+
     <section class="panel">
-      @if (data()!.entries.length === 0) {
+      @if (shown().length === 0) {
         <app-state-panel kind="empty" />
       } @else {
         <div class="scroll">
-          <table mat-table [dataSource]="data()!.entries">
+          <table mat-table [dataSource]="visible()">
             <ng-container matColumnDef="name">
               <th mat-header-cell *matHeaderCellDef>{{ 'fields.name' | translate }}</th>
               <td mat-cell *matCellDef="let entry">{{ entry.traineeName | localized }}</td>
@@ -112,6 +132,14 @@
             <tr mat-row *matRowDef="let row; columns: columns"></tr>
           </table>
         </div>
+
+        <mat-paginator
+          [length]="shown().length"
+          [pageIndex]="page()"
+          [pageSize]="pageSize()"
+          [pageSizeOptions]="[10, 20, 50]"
+          (page)="onPage($event)"
+        />
       }
     </section>
   }

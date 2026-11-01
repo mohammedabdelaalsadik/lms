@@ -75,7 +75,7 @@ internal sealed class VerifyMfaHandler(
         var user = userId is null ? null : await users.FindAsync(new UserId(userId.Value), cancellationToken);
         var now = clock.GetUtcNow();
 
-        if (user is null || !user.MfaEnabled || user.IsLockedOut(now))
+        if (user is null || !user.IsActive || !user.MfaEnabled || user.IsLockedOut(now))
         {
             return UserErrors.InvalidMfaCode;
         }

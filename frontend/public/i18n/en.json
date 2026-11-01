@@ -24,6 +24,8 @@
     "logout": "Sign out",
     "toggleTheme": "Switch theme",
     "searchMenu": "Search",
+    "collapse": "Collapse menu",
+    "expand": "Expand menu",
     "searchAll": "Search everything for “{{term}}”",
     "noMatch": "Nothing matches."
   },
@@ -40,6 +42,7 @@
     "Archived": "Archived"
   },
   "common": {
+    "close": "Close",
     "loading": "Loading",
     "loadFailed": "Couldn't load the data",
     "retry": "Try again",
@@ -137,6 +140,27 @@
     "archived": "Course archived"
   },
   "users": {
+    "status": "Status",
+    "active": "Active",
+    "inactive": "Deactivated",
+    "erased": "Deleted",
+    "actions": "Account actions",
+    "edit": "Edit name and email",
+    "editTitle": "Edit name and email",
+    "saved": "Changes saved.",
+    "resetPassword": "Reset password",
+    "resetTitle": "Reset this password?",
+    "resetMessage": "{{name}} will be signed out and must choose a new password at the next sign-in.",
+    "passwordTitle": "One-time password",
+    "passwordMessage": "Give this password to the person securely. It is shown only once and must be changed at the next sign-in.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "deactivate": "Deactivate account",
+    "deactivateTitle": "Deactivate this account?",
+    "deactivateMessage": "{{name}} will be signed out and cannot sign in. Grades and certificates stay.",
+    "deactivated": "Account deactivated.",
+    "activate": "Activate account",
+    "activated": "Account activated.",
     "title": "Users",
     "subtitle": "National IDs stay masked to protect personal data",
     "roleChanged": "Role changed. The user will need to sign in again.",
@@ -163,6 +187,7 @@
     "catalog_course_only_draft_can_publish": "Only draft courses can be published.",
     "catalog_course_only_published_can_archive": "Only published courses can be archived.",
     "identity_invalid_refresh_token": "Your session ended. Sign in again.",
+    "identity_cannot_change_own_account": "Another administrator must do this.",
     "identity_cannot_change_own_role": "You can't change your own role.",
     "enrollment_cohort_not_found": "Cohort not found.",
     "enrollment_not_found": "Request not found.",
@@ -356,6 +381,8 @@
     "search": "Search by cohort name or branch"
   },
   "roster": {
+    "traineesTitle": "Enrolled trainees",
+    "search": "Search by trainee name",
     "requested": "Requested",
     "approve": "Approve",
     "reject": "Reject",
@@ -637,9 +664,20 @@
     "DownloadCertificate": "Certificate downloaded"
   },
   "filters": {
+    "allInstructors": "All instructors",
+    "allBranches": "All branches",
+    "allCategories": "All categories",
+    "allTypes": "All types",
     "count": "{{count}} results",
     "clear": "Clear filters",
-    "clearSearch": "Clear search"
+    "clearSearch": "Clear search",
+    "period": "Period",
+    "upcoming": "Upcoming",
+    "running": "Running",
+    "ended": "Ended",
+    "issuedFrom": "Issued from",
+    "issuedTo": "Issued to",
+    "instructor": "Instructor"
   },
   "calendar": {
     "subtitle": "Cohort, quiz and assignment dates, in Gregorian and Hijri",
@@ -669,6 +707,7 @@
     "sendFailed": "That didn't go through. Try again."
   },
   "forum": {
+    "searchList": "Search forums by cohort",
     "title": "Discussion forums",
     "subtitle": "Each cohort has its own discussion space.",
     "topics": "Topics",
@@ -834,7 +873,9 @@
     "instructor": "Instructor",
     "dates": "Dates",
     "completion": "Completion",
-    "average": "Average grade"
+    "average": "Average grade",
+    "completionRate": "{{percent}}% of enrolled trainees",
+    "noGrade": "No grades yet"
   },
   "groups": {
     "title": "Groups",
@@ -891,6 +932,12 @@
     "noCourses": "No linked course. Staff sign-off only."
   },
   "plans": {
+    "search": "Search plans by name",
+    "active": "Active",
+    "traineesCount": "{{count}} trainees",
+    "competenciesCount": "{{count}} competencies",
+    "retireTitle": "Retire this plan?",
+    "retireMessage": "It can no longer be assigned. Trainees who already have it keep it.",
     "title": "Learning plans",
     "subtitle": "Lists of competencies you can give to a whole cohort.",
     "mine": "My plans",

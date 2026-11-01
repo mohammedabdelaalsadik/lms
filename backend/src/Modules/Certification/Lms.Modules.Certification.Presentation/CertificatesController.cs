@@ -32,10 +32,12 @@ public sealed class CertificatesController(IDispatcher dispatcher) : ApiControll
     public async Task<IActionResult> List(
         [FromQuery] CertificateStatus? status,
         [FromQuery] string? search,
+        [FromQuery] DateOnly? from,
+        [FromQuery] DateOnly? to,
         CancellationToken cancellationToken,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20) =>
-        Respond(await Dispatcher.Send(new ListCertificatesQuery(status, search, page, pageSize), cancellationToken));
+        Respond(await Dispatcher.Send(new ListCertificatesQuery(status, search, page, pageSize, from, to), cancellationToken));
 
     [HttpGet("{id:guid}/pdf")]
     public async Task<IActionResult> Pdf(Guid id, CancellationToken cancellationToken)

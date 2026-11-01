@@ -10,7 +10,7 @@ namespace Lms.Modules.Certification.Application;
 
 public interface ICertificationUnitOfWork : IUnitOfWork;
 
-public sealed record CertificateFilter(CertificateStatus? Status, string? Search, int Page, int PageSize);
+public sealed record CertificateFilter(CertificateStatus? Status, string? Search, int Page, int PageSize, DateOnly? From = null, DateOnly? To = null);
 
 public interface ICertificateRepository
 {
@@ -133,7 +133,7 @@ internal sealed class ListMyCertificatesHandler(ICertificateRepository certifica
     }
 }
 
-public sealed record ListCertificatesQuery(CertificateStatus? Status, string? Search, int Page = 1, int PageSize = 20)
+public sealed record ListCertificatesQuery(CertificateStatus? Status, string? Search, int Page = 1, int PageSize = 20, DateOnly? From = null, DateOnly? To = null)
     : IQuery<PagedResult<CertificateResponse>>;
 
 internal sealed class ListCertificatesValidator : AbstractValidator<ListCertificatesQuery>
@@ -151,7 +151,7 @@ internal sealed class ListCertificatesHandler(ICertificateRepository certificate
 {
     public async Task<Result<PagedResult<CertificateResponse>>> Handle(ListCertificatesQuery request, CancellationToken cancellationToken)
     {
-        var page = await certificates.ListAsync(new CertificateFilter(request.Status, request.Search, request.Page, request.PageSize), cancellationToken);
+        var page = await certificates.ListAsync(new CertificateFilter(request.Status, request.Search, request.Page, request.PageSize, request.From, request.To), cancellationToken);
         return new PagedResult<CertificateResponse>([.. page.Items.Select(c => c.ToResponse())], page.Total, page.Page, page.PageSize);
     }
 }

@@ -17,12 +17,24 @@
     (searchChange)="filters.set('search', $event)"
     (clear)="filters.clear()"
   >
-    <app-choice-chips
-      [label]="'fields.role' | translate"
-      [choices]="roleChoices"
-      [value]="filters.values.role()"
-      (valueChange)="filters.set('role', $event)"
-    />
+    <div class="filter-group">
+      <span>{{ 'fields.role' | translate }}</span>
+      <app-choice-chips
+        [label]="'fields.role' | translate"
+        [choices]="roleChoices"
+        [value]="filters.values.role()"
+        (valueChange)="filters.set('role', $event)"
+      />
+    </div>
+    <div class="filter-group">
+      <span>{{ 'users.status' | translate }}</span>
+      <app-choice-chips
+        [label]="'users.status' | translate"
+        [choices]="activeChoices"
+        [value]="filters.values.active()"
+        (valueChange)="filters.set('active', $event)"
+      />
+    </div>
   </app-filter-bar>
 
   <section class="panel">
@@ -37,25 +49,19 @@
         <table mat-table [dataSource]="data()!.items">
           <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef>{{ 'fields.name' | translate }}</th>
-            <td mat-cell *matCellDef="let user">{{ user.fullName | localized }}</td>
+            <td mat-cell *matCellDef="let user">
+              <div class="person">
+                <span class="avatar" [class.off]="!user.isActive" aria-hidden="true">{{ (user.fullName | localized).charAt(0) }}</span>
+                <span class="who">
+                  <strong>{{ user.fullName | localized }}</strong>
+                  <small class="ltr-value">{{ user.email }}</small>
+                </span>
+              </div>
+            </td>
           </ng-container>
           <ng-container matColumnDef="nationalId">
             <th mat-header-cell *matHeaderCellDef>{{ 'fields.nationalId' | translate }}</th>
-            <td mat-cell *matCellDef="let user">
-              <span class="ltr-value">{{ user.maskedNationalId }}</span>
-              @if (canAssign()) {
-                <button matIconButton (click)="reveal(user)" [attr.aria-label]="'nationalId.title' | translate">
-                  <mat-icon>visibility</mat-icon>
-                </button>
-                <button matIconButton (click)="resetMfa(user)" [attr.aria-label]="'security.reset' | translate">
-                  <mat-icon>phonelink_erase</mat-icon>
-                </button>
-              }
-            </td>
-          </ng-container>
-          <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef>{{ 'fields.email' | translate }}</th>
-            <td mat-cell *matCellDef="let user"><span class="ltr-value">{{ user.email }}</span></td>
+            <td mat-cell *matCellDef="let user"><span class="ltr-value id">{{ user.maskedNationalId }}</span></td>
           </ng-container>
           <ng-container matColumnDef="role">
             <th mat-header-cell *matHeaderCellDef>{{ 'fields.role' | translate }}</th>
@@ -77,12 +83,38 @@
               }
             </td>
           </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>{{ 'users.status' | translate }}</th>
+            <td mat-cell *matCellDef="let user">
+              <span class="state" [class.off]="!user.isActive">{{ (user.isErased ? 'users.erased' : user.isActive ? 'users.active' : 'users.inactive') | translate }}</span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="actions">
+            <th mat-header-cell *matHeaderCellDef><span class="visually-hidden">{{ 'users.actions' | translate }}</span></th>
+            <td mat-cell *matCellDef="let user">
+              @if (!user.isErased) {
+                <div class="row-actions">
+                  <button matIconButton [matTooltip]="'nationalId.title' | translate" [attr.aria-label]="'nationalId.title' | translate" (click)="reveal(user)"><mat-icon>visibility</mat-icon></button>
+                  <button matIconButton [matTooltip]="'users.edit' | translate" [attr.aria-label]="'users.edit' | translate" (click)="edit(user)"><mat-icon>edit</mat-icon></button>
+                  @if (user.id !== auth.user()?.id) {
+                    <button matIconButton [matTooltip]="'users.resetPassword' | translate" [attr.aria-label]="'users.resetPassword' | translate" (click)="resetPassword(user)"><mat-icon>key</mat-icon></button>
+                    <button matIconButton [matTooltip]="'security.reset' | translate" [attr.aria-label]="'security.reset' | translate" (click)="resetMfa(user)"><mat-icon>phonelink_erase</mat-icon></button>
+                    @if (user.isActive) {
+                      <button matIconButton class="danger" [matTooltip]="'users.deactivate' | translate" [attr.aria-label]="'users.deactivate' | translate" (click)="deactivate(user)"><mat-icon>person_off</mat-icon></button>
+                    } @else {
+                      <button matIconButton class="good" [matTooltip]="'users.activate' | translate" [attr.aria-label]="'users.activate' | translate" (click)="activate(user)"><mat-icon>person_check</mat-icon></button>
+                    }
+                  }
+                </div>
+              }
+            </td>
+          </ng-container>
           <ng-container matColumnDef="joined">
             <th mat-header-cell *matHeaderCellDef>{{ 'fields.joined' | translate }}</th>
             <td mat-cell *matCellDef="let user">{{ user.createdAt | appDate }}</td>
           </ng-container>
-          <tr mat-header-row *matHeaderRowDef="columns"></tr>
-          <tr mat-row *matRowDef="let row; columns: columns"></tr>
+          <tr mat-header-row *matHeaderRowDef="columns()"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns()"></tr>
         </table>
       </div>
 

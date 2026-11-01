@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 
 export interface Choice {
@@ -6,19 +6,22 @@ export interface Choice {
   labelKey: string;
 }
 
-/** A one-of-many filter shown in full, so people see their options without opening a menu. */
+/**
+ * A one-of-many filter shown in full, so people see their options without opening a menu.
+ * The empty choice means no filter, so it is not drawn: nothing selected is everything, and clicking a selected chip clears it.
+ */
 @Component({
   selector: 'app-choice-chips',
   imports: [TranslatePipe],
   template: `
     <div class="chips" role="group" [attr.aria-label]="label()">
-      @for (choice of choices(); track choice.value) {
+      @for (choice of shown(); track choice.value) {
         <button
           type="button"
           class="chip"
           [class.on]="value() === choice.value"
           [attr.aria-pressed]="value() === choice.value"
-          (click)="valueChange.emit(choice.value)"
+          (click)="pick(choice.value)"
         >
           {{ choice.labelKey | translate }}
         </button>
@@ -51,7 +54,7 @@ export interface Choice {
       }
 
       &.on {
-        border-color: transparent;
+        border-color: var(--brand-primary);
         background: var(--mat-sys-primary-container);
         color: var(--mat-sys-on-primary-container);
         font-weight: 600;
@@ -69,4 +72,11 @@ export class ChoiceChips {
   readonly value = input.required<string>();
   readonly label = input.required<string>();
   readonly valueChange = output<string>();
+
+  protected readonly shown = computed(() => this.choices().filter((choice) => choice.value !== ''));
+  private readonly canClear = computed(() => this.choices().some((choice) => choice.value === ''));
+
+  protected pick(value: string): void {
+    this.valueChange.emit(value === this.value() && this.canClear() ? '' : value);
+  }
 }

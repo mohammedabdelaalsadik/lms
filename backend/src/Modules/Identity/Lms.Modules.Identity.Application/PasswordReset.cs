@@ -30,7 +30,7 @@ internal sealed class ForgotPasswordHandler(
         var nationalId = NationalId.Create(request.NationalId);
         var user = nationalId.IsSuccess ? await users.FindByLookupHashAsync(protector.ComputeLookupHash(nationalId.Value), cancellationToken) : null;
 
-        if (user is not null)
+        if (user is { IsActive: true })
         {
             var token = tokens.IssueRefreshToken();
             user.BeginPasswordReset(token.Hash, clock.GetUtcNow());

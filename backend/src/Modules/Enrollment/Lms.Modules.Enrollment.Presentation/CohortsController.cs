@@ -23,10 +23,17 @@ public sealed class CohortsController(IDispatcher dispatcher) : ApiController(di
     public async Task<IActionResult> List(
         [FromQuery] string? search,
         [FromQuery] CohortStatus? status,
+        [FromQuery] CohortPeriod? period,
+        [FromQuery] string? branch,
+        [FromQuery] Guid? instructorId,
         CancellationToken cancellationToken,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20) =>
-        Respond(await Dispatcher.Send(new ListCohortsQuery(search, status, page, pageSize), cancellationToken));
+        Respond(await Dispatcher.Send(new ListCohortsQuery(search, status, page, pageSize, period, branch, instructorId), cancellationToken));
+
+    [HttpGet("branches")]
+    public async Task<IActionResult> Branches(CancellationToken cancellationToken) =>
+        Respond(await Dispatcher.Send(new ListCohortBranchesQuery(), cancellationToken));
 
     [HttpGet("{id:guid}/groups")]
     [Authorize(Roles = LmsRoles.CohortViewers)]

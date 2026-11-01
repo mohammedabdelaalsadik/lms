@@ -9,10 +9,12 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { Observable, firstValueFrom } from 'rxjs';
 import { AuthService } from '../../core/auth/auth.service';
 import { urlFilters } from '../../core/filters/url-filters';
+import { FormsModule } from '@angular/forms';
 import { errorKey } from '../../core/http/api-error';
 import { Paged } from '../../core/models';
 import { AppDatePipe } from '../../shared/app-date.pipe';
 import { ChoiceChips } from '../../shared/choice-chips';
+import { DateField } from '../../shared/date-field';
 import { ConfirmDialog } from '../../shared/confirm-dialog';
 import { FilterBar } from '../../shared/filter-bar';
 import { LocalizedPipe } from '../../shared/localized.pipe';
@@ -22,7 +24,7 @@ import { CERTIFICATES_URL, Certificate, CertificateService } from './certificate
 
 @Component({
   selector: 'app-manage-certificates',
-  imports: [
+  imports: [DateField, FormsModule, 
     AppDatePipe,
     ChoiceChips,
     FilterBar,
@@ -82,7 +84,7 @@ export class ManageCertificates {
     { value: 'Issued', labelKey: 'certificateStatus.Issued' },
     { value: 'Revoked', labelKey: 'certificateStatus.Revoked' },
   ];
-  protected readonly filters = urlFilters({ search: '', status: '' });
+  protected readonly filters = urlFilters({ search: '', status: '', from: '', to: '' });
   protected readonly pageSize = signal(20);
 
   protected readonly resource = httpResource<Paged<Certificate>>(() => ({
@@ -92,6 +94,8 @@ export class ManageCertificates {
       pageSize: this.pageSize(),
       ...(this.filters.values.search() ? { search: this.filters.values.search() } : {}),
       ...(this.filters.values.status() ? { status: this.filters.values.status() } : {}),
+      ...(this.filters.values.from() ? { from: this.filters.values.from() } : {}),
+      ...(this.filters.values.to() ? { to: this.filters.values.to() } : {}),
     },
   }));
   protected readonly data = computed(() => (this.resource.hasValue() ? this.resource.value() : null));

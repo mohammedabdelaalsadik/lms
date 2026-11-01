@@ -21,12 +21,46 @@
     (clear)="filters.clear()"
   >
     @if (!isTrainee()) {
-      <app-choice-chips
-        [label]="'courses.status' | translate"
-        [choices]="statusChoices"
-        [value]="filters.values.status()"
-        (valueChange)="filters.set('status', $event)"
-      />
+      <div class="filter-group">
+        <span>{{ 'courses.status' | translate }}</span>
+        <app-choice-chips
+          [label]="'courses.status' | translate"
+          [choices]="statusChoices"
+          [value]="filters.values.status()"
+          (valueChange)="filters.set('status', $event)"
+        />
+      </div>
+      <div class="filter-group">
+        <span>{{ 'filters.period' | translate }}</span>
+        <app-choice-chips
+          [label]="'filters.period' | translate"
+          [choices]="periodChoices"
+          [value]="filters.values.period()"
+          (valueChange)="filters.set('period', $event)"
+        />
+      </div>
+    }
+    @if (branches().length > 1) {
+      <mat-form-field subscriptSizing="dynamic" class="select">
+        <mat-label>{{ 'cohorts.branch' | translate }}</mat-label>
+        <mat-select [value]="filters.values.branch()" (selectionChange)="filters.set('branch', $event.value)">
+          <mat-option value="">{{ 'filters.allBranches' | translate }}</mat-option>
+          @for (branch of branches(); track branch) {
+            <mat-option [value]="branch">{{ branch }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+    @if (instructors().length > 0) {
+      <mat-form-field subscriptSizing="dynamic" class="select">
+        <mat-label>{{ 'filters.instructor' | translate }}</mat-label>
+        <mat-select [value]="filters.values.instructor()" (selectionChange)="filters.set('instructor', $event.value)">
+          <mat-option value="">{{ 'filters.allInstructors' | translate }}</mat-option>
+          @for (person of instructors(); track person.id) {
+            <mat-option [value]="person.id">{{ person.fullName | localized }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
     }
   </app-filter-bar>
 

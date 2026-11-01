@@ -1,6 +1,9 @@
+import { FilterBar } from '../../shared/filter-bar';
+import { ChoiceChips } from '../../shared/choice-chips';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { LIVE_CLASSES_ENABLED } from '../../core/features';
 import { httpResource } from '@angular/common/http';
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,9 +27,12 @@ import { RejectDialog } from './reject-dialog';
   selector: 'app-cohort-detail',
   imports: [
     AppDatePipe,
+    ChoiceChips,
+    FilterBar,
     LocalizedPipe,
     MatButtonModule,
     MatIconModule,
+    MatPaginatorModule,
     MatTableModule,
     RouterLink,
     StatePanel,
@@ -70,6 +76,61 @@ import { RejectDialog } from './reject-dialog';
       flex-wrap: wrap;
       gap: var(--space-2);
     }
+    .tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+
+      a {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+        min-height: 2.25rem;
+        padding: 0 var(--space-3) 0 var(--space-2);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: var(--mat-sys-surface);
+        color: var(--brand-link);
+        font: var(--mat-sys-label-large);
+        text-decoration: none;
+        transition:
+          background-color 0.15s ease,
+          border-color 0.15s ease;
+
+        &:hover {
+          border-color: var(--brand-primary);
+          background: var(--mat-sys-primary-container);
+        }
+      }
+
+      mat-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
+      }
+    }
+    .roster {
+      display: grid;
+      gap: var(--space-3);
+
+      h2 {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        font: var(--mat-sys-title-large);
+        font-weight: 700;
+      }
+    }
+    .total {
+      min-width: 1.75rem;
+      padding: 0 var(--space-2);
+      border-radius: 999px;
+      background: var(--mat-sys-primary-container);
+      color: var(--mat-sys-on-primary-container);
+      font: var(--mat-sys-label-large);
+      font-weight: 700;
+      text-align: center;
+    }
   `,
 })
 export class CohortDetail {
@@ -90,6 +151,51 @@ export class CohortDetail {
   protected readonly data = computed(() =>
     this.resource.hasValue() ? this.resource.value() : null,
   );
+
+  protected readonly search = signal('');
+  protected readonly status = signal('');
+  protected readonly page = signal(0);
+  protected readonly pageSize = signal(10);
+
+  protected readonly statusChoices = computed(() => {
+    const present = [...new Set((this.data()?.entries ?? []).map((entry) => entry.status))];
+    return [{ value: '', labelKey: 'common.all' }, ...present.map((value) => ({ value, labelKey: `enrollmentStatus.${value}` }))];
+  });
+
+  protected readonly shown = computed(() => {
+    const term = this.search().trim().toLowerCase();
+
+    return (this.data()?.entries ?? []).filter(
+      (entry) =>
+        (!this.status() || entry.status === this.status()) &&
+        (!term || entry.traineeName.ar.toLowerCase().includes(term) || entry.traineeName.en.toLowerCase().includes(term)),
+    );
+  });
+
+  protected readonly visible = computed(() => {
+    const start = this.page() * this.pageSize();
+    return this.shown().slice(start, start + this.pageSize());
+  });
+
+  protected find(term: string): void {
+    this.search.set(term);
+    this.page.set(0);
+  }
+
+  protected setStatus(value: string): void {
+    this.status.set(value);
+    this.page.set(0);
+  }
+
+  protected clearFilters(): void {
+    this.status.set('');
+    this.find('');
+  }
+
+  protected onPage(event: PageEvent): void {
+    this.page.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+  }
 
   protected reveal(entry: RosterEntry): void {
     const name = this.translate.getCurrentLang() === 'ar' ? entry.traineeName.ar : entry.traineeName.en;

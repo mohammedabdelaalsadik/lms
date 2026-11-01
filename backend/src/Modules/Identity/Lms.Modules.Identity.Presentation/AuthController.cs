@@ -246,10 +246,11 @@ public sealed class UsersController(IDispatcher dispatcher) : ApiController(disp
     public async Task<IActionResult> List(
         [FromQuery] string? search,
         [FromQuery] Role? role,
+        [FromQuery] bool? active,
         CancellationToken cancellationToken,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20) =>
-        Respond(await Dispatcher.Send(new ListUsersQuery(search, role, page, pageSize), cancellationToken));
+        Respond(await Dispatcher.Send(new ListUsersQuery(search, role, page, pageSize, active), cancellationToken));
 
     [HttpGet("online")]
     [Authorize(Roles = LmsRoles.UserViewers)]
@@ -290,4 +291,26 @@ public sealed class UsersController(IDispatcher dispatcher) : ApiController(disp
     [Authorize(Roles = LmsRoles.Admin)]
     public async Task<IActionResult> ChangeRole(Guid id, ChangeRoleRequest body, CancellationToken cancellationToken) =>
         RespondNoContent(await Dispatcher.Send(new ChangeUserRoleCommand(id, body.Role), cancellationToken));
+
+    [HttpPut("{id:guid}/profile")]
+    [Authorize(Roles = LmsRoles.Admin)]
+    public async Task<IActionResult> UpdateProfile(Guid id, UserProfileRequest body, CancellationToken cancellationToken) =>
+        RespondNoContent(await Dispatcher.Send(new UpdateUserProfileCommand(id, body.NameAr, body.NameEn, body.Email), cancellationToken));
+
+    [HttpPut("{id:guid}/active")]
+    [Authorize(Roles = LmsRoles.Admin)]
+    public async Task<IActionResult> SetActive(Guid id, UserActiveRequest body, CancellationToken cancellationToken) =>
+        RespondNoContent(await Dispatcher.Send(new SetUserActiveCommand(id, body.Active), cancellationToken));
+
+    [HttpPost("{id:guid}/password/reset")]
+    [Authorize(Roles = LmsRoles.Admin)]
+    public async Task<IActionResult> ResetPassword(Guid id, CancellationToken cancellationToken)
+    {
+        Response.Headers.CacheControl = "no-store";
+        return Respond(await Dispatcher.Send(new ResetUserPasswordCommand(id), cancellationToken));
+    }
 }
+
+public sealed record UserProfileRequest(string NameAr, string NameEn, string Email);
+
+public sealed record UserActiveRequest(bool Active);
