@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lms.Modules.Identity.Application\Lms.Modules.Identity.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Lms.BuildingBlocks.Infrastructure\Lms.BuildingBlocks.Infrastructure.csproj" />
+    <ProjectReference Include="..\Lms.Modules.Identity.Contracts\Lms.Modules.Identity.Contracts.csproj" />
+    <ProjectReference Include="..\..\Notifications\Lms.Modules.Notifications.Contracts\Lms.Modules.Notifications.Contracts.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" />
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" />
+    <PackageReference Include="QRCoder" />
+  </ItemGroup>
+
+  <PropertyGroup>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,100 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>{{ 'nav.calendar' | translate }}</h1>
+      <p>{{ 'calendar.subtitle' | translate }}</p>
+    </div>
+    <div class="legend" aria-hidden="true">
+      <span class="tag start">{{ 'calendar.kind.start' | translate }}</span>
+      <span class="tag end">{{ 'calendar.kind.end' | translate }}</span>
+      <span class="tag quiz">{{ 'calendar.kind.quiz' | translate }}</span>
+      <span class="tag assignment">{{ 'calendar.kind.assignment' | translate }}</span>
+      <span class="tag live">{{ 'calendar.kind.live' | translate }}</span>
+    </div>
+  </header>
+
+  @if (failed()) {
+    <section class="panel"><app-state-panel kind="error" (retry)="load()" /></section>
+  } @else if (events() === null) {
+    <section class="panel"><app-state-panel kind="loading" /></section>
+  } @else {
+    <div class="layout">
+      <section class="panel month" [attr.aria-label]="title()">
+        <header class="month-head">
+          <div aria-live="polite">
+            <h2>{{ title() }}</h2>
+            <p>{{ hijriTitle() }}</p>
+          </div>
+          <div class="tools">
+            <button matButton="outlined" (click)="goToday()">{{ 'calendar.today' | translate }}</button>
+            <button matIconButton (click)="move(-1)" [attr.aria-label]="'calendar.previous' | translate">
+              <mat-icon class="flip-rtl">chevron_left</mat-icon>
+            </button>
+            <button matIconButton (click)="move(1)" [attr.aria-label]="'calendar.next' | translate">
+              <mat-icon class="flip-rtl">chevron_right</mat-icon>
+            </button>
+          </div>
+        </header>
+
+        <div class="weekdays" aria-hidden="true">
+          @for (name of weekdays(); track $index) {
+            <span>{{ name }}</span>
+          }
+        </div>
+
+        <div class="grid">
+          @for (day of days(); track day.key) {
+            <button
+              type="button"
+              class="day"
+              [class.outside]="!day.inMonth"
+              [class.today]="day.isToday"
+              [class.chosen]="day.key === selectedKey()"
+              [attr.aria-label]="day.label"
+              [attr.aria-pressed]="day.key === selectedKey()"
+              [attr.aria-current]="day.isToday ? 'date' : null"
+              (click)="selectedKey.set(day.key)"
+            >
+              <span class="numbers">
+                <span class="greg">{{ day.date.getDate() }}</span>
+                <span class="hijri">{{ day.hijri }}</span>
+              </span>
+              <span class="marks">
+                @for (event of day.events.slice(0, 3); track $index) {
+                  <span class="mark" [class]="event.kind"></span>
+                }
+                @if (day.events.length > 3) {
+                  <span class="more">+{{ day.events.length - 3 }}</span>
+                }
+              </span>
+            </button>
+          }
+        </div>
+      </section>
+
+      <aside class="panel agenda">
+        <h2>{{ selectedLabel() }}</h2>
+        @if (selectedEvents().length === 0) {
+          <p class="none">
+            <mat-icon aria-hidden="true">event_available</mat-icon>
+            {{ 'calendar.nothing' | translate }}
+          </p>
+        } @else {
+          <ul>
+            @for (event of selectedEvents(); track $index) {
+              <li>
+                <a [routerLink]="event.link">
+                  <span class="badge" [class]="event.kind"><mat-icon aria-hidden="true">{{ icons[event.kind] }}</mat-icon></span>
+                  <span class="text">
+                    <strong>{{ event.title | localized }}</strong>
+                    <small>{{ 'calendar.kind.' + event.kind | translate }}</small>
+                  </span>
+                </a>
+              </li>
+            }
+          </ul>
+        }
+      </aside>
+    </div>
+  }
+</div>

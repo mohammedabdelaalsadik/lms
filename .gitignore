@@ -1,0 +1,19 @@
+# .NET
+bin/
+obj/
+*.user
+.vs/
+
+# Node / Angular
+node_modules/
+dist/
+.angular/
+coverage/
+
+# Secrets and local settings
+.env
+*.pfx
+appsettings.Local.json
+
+# Uploaded course files
+App_Data/

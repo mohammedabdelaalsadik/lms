@@ -1,0 +1,102 @@
+<div class="page">
+  <a matButton [routerLink]="['/learn', cohortId()]" class="back">
+    <mat-icon class="flip-rtl">arrow_back</mat-icon>
+    {{ 'learn.outline' | translate }}
+  </a>
+
+  <header class="page-header">
+    <div>
+      <h1>{{ 'assessments.myTitle' | translate }}</h1>
+      <p>{{ 'assessments.mySubtitle' | translate }}</p>
+    </div>
+  </header>
+
+  @if (resource.error()) {
+    <section class="panel"><app-state-panel kind="error" (retry)="resource.reload()" /></section>
+  } @else if (!data()) {
+    <section class="panel"><app-state-panel kind="loading" /></section>
+  } @else {
+    <section class="panel">
+      <h2 class="section-title">{{ 'assessments.quizzes' | translate }}</h2>
+      @if (data()!.quizzes.length === 0) {
+        <app-state-panel kind="empty" />
+      }
+      <ul>
+        @for (quiz of data()!.quizzes; track quiz.id) {
+          <li>
+            <div>
+              {{ quiz.title | localized }}
+              <small>{{ 'assessments.myQuizFacts' | translate: { minutes: quiz.timeLimitMinutes, used: quiz.attemptsUsed, attempts: quiz.maxAttempts } }}</small>
+            </div>
+            @if (quiz.isOpen && (quiz.hasOpenAttempt || quiz.attemptsUsed < quiz.maxAttempts)) {
+              <a matButton="filled" [routerLink]="['/learn', cohortId(), 'quiz', quiz.id]">
+                {{ (quiz.hasOpenAttempt ? 'assessments.resumeQuiz' : 'assessments.startQuiz') | translate }}
+              </a>
+            } @else {
+              <small>{{ (quiz.attemptsUsed > 0 ? 'assessments.quizDone' : 'assessments.quizNotOpen') | translate }}</small>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2 class="section-title">{{ 'assessments.assignments' | translate }}</h2>
+      @if (data()!.assignments.length === 0) {
+        <app-state-panel kind="empty" />
+      }
+      <ul>
+        @for (assignment of data()!.assignments; track assignment.id) {
+          <li>
+            <div>
+              {{ assignment.title | localized }}
+              <small class="note">{{ assignment.instructions | localized }}</small>
+              <small>{{ 'assessments.dueOn' | translate: { date: (assignment.dueAt | appDate) } }}</small>
+              @if (assignment.fileName) {
+                <small>
+                  {{ 'assessments.submittedFile' | translate }}: <span class="ltr-value">{{ assignment.fileName }}</span>
+                  @if (assignment.isLate) {
+                    · <strong class="late">{{ 'assessments.late' | translate }}</strong>
+                  }
+                </small>
+              }
+              @if (assignment.feedback) {
+                <small class="note">{{ 'assessments.feedback' | translate }}: {{ assignment.feedback }}</small>
+              }
+            </div>
+            @if (assignment.canSubmit) {
+              <input #picker hidden type="file" accept=".pdf,.docx,.pptx,.xlsx,.png,.jpg,.jpeg,.mp4" (change)="upload(assignment, $event)" />
+              <button matButton="outlined" (click)="picker.click()" [disabled]="uploading() === assignment.id">
+                <mat-icon>upload_file</mat-icon>
+                {{ (assignment.fileName ? 'assessments.replaceFile' : 'assessments.submitFile') | translate }}
+              </button>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2 class="section-title">{{ 'grades.myGrades' | translate }}</h2>
+      @if (data()!.grades.length === 0) {
+        <app-state-panel kind="empty" />
+      } @else {
+        <ul>
+          @for (grade of data()!.grades; track grade.itemId) {
+            <li>
+              <div>
+                {{ grade.title | localized }}
+                <small>{{ 'grades.weightValue' | translate: { weight: grade.weight } }}</small>
+              </div>
+              <strong class="ltr-value">{{ grade.percent ?? '–' }}</strong>
+            </li>
+          }
+        </ul>
+        <div class="totals">
+          <span>{{ 'grades.running' | translate }}: <strong class="ltr-value">{{ data()!.runningTotal ?? '–' }}</strong></span>
+          <span>{{ 'grades.final' | translate }}: <strong class="ltr-value">{{ data()!.finalGrade ?? '–' }}</strong></span>
+        </div>
+      }
+    </section>
+  }
+</div>

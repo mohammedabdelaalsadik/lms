@@ -1,0 +1,72 @@
+<div class="page">
+  <a matButton [routerLink]="['/cohorts', id()]" class="back">
+    <mat-icon class="flip-rtl">arrow_back</mat-icon>
+    {{ 'cohorts.roster' | translate }}
+  </a>
+
+  <header class="page-header">
+    <div>
+      <h1>{{ 'assessments.title' | translate }}</h1>
+      <p>{{ 'assessments.subtitle' | translate }}</p>
+    </div>
+    <div class="actions">
+      <button matButton="filled" (click)="openQuiz(null)"><mat-icon>add</mat-icon>{{ 'assessments.newQuiz' | translate }}</button>
+      <button matButton="outlined" (click)="openAssignment()"><mat-icon>add</mat-icon>{{ 'assessments.newAssignment' | translate }}</button>
+      <a matButton="outlined" [routerLink]="['/cohorts', id(), 'gradebook']"><mat-icon>table_view</mat-icon>{{ 'grades.title' | translate }}</a>
+    </div>
+  </header>
+
+  <section class="panel">
+    <h2 class="section-title">{{ 'assessments.quizzes' | translate }}</h2>
+    @if (quizzes.error()) {
+      <app-state-panel kind="error" (retry)="quizzes.reload()" />
+    } @else if (quizList() === null) {
+      <app-state-panel kind="loading" />
+    } @else if (quizList()!.length === 0) {
+      <app-state-panel kind="empty" />
+    } @else {
+      <ul>
+        @for (quiz of quizList(); track quiz.id) {
+          <li>
+            <div>
+              {{ quiz.title | localized }}
+              <small>{{ 'assessments.quizFacts' | translate: { questions: quiz.questions.length, minutes: quiz.timeLimitMinutes, attempts: quiz.maxAttempts, weight: quiz.weight } }}</small>
+            </div>
+            <div class="actions">
+              <span class="tag">{{ 'quizStatus.' + quiz.status | translate }}</span>
+              @if (quiz.status === 'Draft') {
+                <button matButton (click)="openQuiz(quiz)">{{ 'common.edit' | translate }}</button>
+                <button matButton="filled" (click)="publish(quiz)">{{ 'courses.publish' | translate }}</button>
+              } @else if (hasEssay(quiz)) {
+                <a matButton [routerLink]="['/cohorts', id(), 'quizzes', quiz.id, 'marking']">{{ 'marking.title' | translate }}</a>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="panel">
+    <h2 class="section-title">{{ 'assessments.assignments' | translate }}</h2>
+    @if (assignments.error()) {
+      <app-state-panel kind="error" (retry)="assignments.reload()" />
+    } @else if (assignmentList() === null) {
+      <app-state-panel kind="loading" />
+    } @else if (assignmentList()!.length === 0) {
+      <app-state-panel kind="empty" />
+    } @else {
+      <ul>
+        @for (assignment of assignmentList(); track assignment.id) {
+          <li>
+            <div>
+              {{ assignment.title | localized }}
+              <small>{{ 'assessments.assignmentFacts' | translate: { date: (assignment.dueAt | appDate), weight: assignment.weight } }}</small>
+            </div>
+            <a matButton="outlined" [routerLink]="['/cohorts', id(), 'assignments', assignment.id]">{{ 'assessments.submissions' | translate }}</a>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

@@ -1,0 +1,420 @@
+@use '@angular/material' as mat;
+@use './theme-colors' as palette;
+
+html {
+  color-scheme: light;
+
+  @include mat.theme(
+    (
+      color: (
+        primary: palette.$primary-palette,
+        tertiary: palette.$tertiary-palette,
+      ),
+      typography: (
+        plain-family: 'IBM Plex Sans Arabic',
+        brand-family: 'Readex Pro Variable',
+        regular-weight: 400,
+        medium-weight: 500,
+        bold-weight: 600,
+      ),
+      density: -1,
+    )
+  );
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --radius-s: 12px;
+  --radius-m: 16px;
+  --line: var(--mat-sys-outline-variant);
+  --page: light-dark(#f3f6f9, #0a141a);
+  --brand-primary: light-dark(#0083a0, #5ccbe3);
+  --brand-link: light-dark(#006a82, #7fdaed);
+  --brand-ink: #06384a;
+  --brand-on-ink: #eef7fa;
+  --brand-accent: light-dark(#b7791f, #e9b44c);
+  --shadow-card: light-dark(0 1px 2px rgb(6 56 74 / 5%), 0 1px 2px rgb(0 0 0 / 40%)),
+    light-dark(0 10px 24px -20px rgb(6 56 74 / 20%), 0 10px 24px -18px rgb(0 0 0 / 60%));
+
+  // Colours that carry meaning, each with a soft tint and readable text on it.
+  --tint-green: light-dark(#d8f1e7, #0f4536);
+  --on-tint-green: light-dark(#06392b, #c9f2e2);
+  --tint-amber: light-dark(#fbeed2, #4a3610);
+  --on-tint-amber: light-dark(#5a3c04, #fbe0a9);
+  --tint-blue: light-dark(#d3ecf3, #0f4656);
+  --on-tint-blue: light-dark(#06384a, #cdeef6);
+  --tint-plum: light-dark(#eee3f8, #36264a);
+  --on-tint-plum: light-dark(#452069, #e8d6fa);
+  --tint-grey: light-dark(#e6eef2, #20323c);
+  --on-tint-grey: light-dark(#435762, #b7c8d0);
+
+  // The richest colour in the app, kept for the sidebar and the welcome banner.
+  --deep-1: #064e63;
+  --deep-2: #053c4e;
+  --deep-3: #042534;
+  --gold: #ffd27a;
+
+  // The deep teal scene with an amber and a coral glow, used for the sign-in panel and the welcome banner.
+  --brand-scene:
+    radial-gradient(44rem 25rem at 100% 0%, rgb(255 185 48 / 35%), transparent 60%),
+    radial-gradient(38rem 26rem at 0% 100%, rgb(255 122 89 / 50%), transparent 60%),
+    linear-gradient(160deg, #04303f 0%, #065066 45%, #00708a 100%);
+  --page-wash:
+    radial-gradient(75rem 37rem at 100% -10%, light-dark(#dff3f8, rgb(0 131 160 / 14%)) 0%, transparent 60%),
+    radial-gradient(56rem 31rem at -10% 110%, light-dark(#fff1e9, rgb(255 122 89 / 7%)) 0%, transparent 60%);
+  --button-fill: light-dark(linear-gradient(135deg, #007c98 0%, #006e87 100%), linear-gradient(135deg, #74d6ec, #5ccbe3));
+
+  // Cool blue-grey neutrals, so surfaces sit quietly behind the brand blue.
+  --mat-sys-primary: var(--brand-primary);
+  --mat-sys-on-primary: light-dark(#ffffff, #00333f);
+  --mat-sys-primary-container: light-dark(#d3ecf3, #0f4656);
+  --mat-sys-on-primary-container: light-dark(#06384a, #cdeef6);
+  --mat-sys-secondary-container: light-dark(#e1f0f5, #1b3f4c);
+  --mat-sys-on-secondary-container: light-dark(#06384a, #d3edf4);
+  --mat-sys-tertiary-container: light-dark(#fbeed2, #4a3610);
+  --mat-sys-on-tertiary-container: light-dark(#5a3c04, #fbe0a9);
+  --mat-sys-surface: light-dark(#ffffff, #111e25);
+  --mat-sys-on-surface: light-dark(#0e2a33, #e4edf1);
+  --mat-sys-surface-container-lowest: light-dark(#ffffff, #0d181e);
+  --mat-sys-surface-container-low: light-dark(#f8fbfc, #15232b);
+  --mat-sys-surface-container: light-dark(#eff5f7, #1a2a33);
+  --mat-sys-surface-container-high: light-dark(#e6eef2, #20323c);
+  --mat-sys-surface-container-highest: light-dark(#dde7ec, #283c47);
+  --mat-sys-on-surface-variant: light-dark(#3b5560, #a7b9c2);
+  --mat-sys-outline: light-dark(#7d8f99, #6d828d);
+  --mat-sys-outline-variant: light-dark(#e2e9ee, #263842);
+
+  @include mat.form-field-overrides(
+    (
+      outlined-container-shape: var(--radius-s),
+    )
+  );
+  @include mat.button-overrides(
+    (
+      filled-container-shape: var(--radius-s),
+      filled-container-color: var(--brand-primary),
+      filled-label-text-color: var(--mat-sys-on-primary),
+      text-label-text-color: var(--brand-link),
+      outlined-label-text-color: var(--brand-link),
+      outlined-container-shape: var(--radius-s),
+      text-container-shape: var(--radius-s),
+    )
+  );
+  @include mat.sidenav-overrides(
+    (
+      container-shape: 0,
+      content-background-color: var(--page),
+    )
+  );
+  @include mat.datepicker-overrides(
+    (
+      calendar-container-background-color: var(--mat-sys-surface),
+      calendar-container-shape: var(--radius-m),
+    )
+  );
+  @include mat.menu-overrides(
+    (
+      container-color: var(--mat-sys-surface),
+      container-shape: var(--radius-m),
+    )
+  );
+  @include mat.table-overrides(
+    (
+      row-item-outline-color: var(--line),
+    )
+  );
+  @include mat.dialog-overrides(
+    (
+      container-shape: var(--radius-m),
+    )
+  );
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --brand-ink: #05293a;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-family: 'Readex Pro Variable', 'IBM Plex Sans Arabic', sans-serif;
+}
+
+// One visible focus ring everywhere, shown for keyboard users only.
+:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+a {
+  color: var(--brand-link);
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-size: 24px;
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+.mat-mdc-slide-toggle .mat-internal-form-field {
+  gap: var(--space-2);
+}
+
+.mat-mdc-table {
+  width: 100%;
+}
+
+[dir='rtl'] .flip-rtl {
+  transform: scaleX(-1);
+}
+
+// Inline-block keeps values such as ******0396 in order inside right-to-left text.
+.ltr-value {
+  display: inline-block;
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+::selection {
+  background: light-dark(#c7e6ee, #135a6e);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--mat-sys-outline-variant) transparent;
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding: var(--space-6) var(--space-4);
+  animation: page-in 0.52s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @media (min-width: 768px) {
+    padding: var(--space-8);
+  }
+}
+
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    margin-block-start: var(--space-1);
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.panel {
+  overflow: hidden;
+  background: var(--mat-sys-surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-card);
+}
+
+// Lists and tables inside a panel end without a doubled border.
+.panel ul > li:last-child {
+  border-block-end: 0;
+}
+
+.mat-mdc-table,
+.mat-mdc-paginator {
+  background: transparent;
+}
+
+th.mat-mdc-header-cell {
+  background: color-mix(in srgb, var(--brand-primary) 7%, var(--mat-sys-surface));
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-label-large);
+  font-weight: 600;
+}
+
+tr.mat-mdc-row {
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--brand-primary) 5%, var(--mat-sys-surface));
+  }
+}
+
+.mat-mdc-paginator {
+  border-block-start: 1px solid var(--line);
+}
+
+// Fields on the page background stay readable against the grey.
+.filters .mdc-text-field--outlined {
+  background: var(--mat-sys-surface);
+  border-radius: var(--radius-s);
+}
+
+.mdc-button {
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.18s ease;
+
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+}
+
+.mat-mdc-unelevated-button:not(:disabled) {
+  background-image: var(--button-fill);
+
+  box-shadow: 0 10px 22px -12px color-mix(in srgb, var(--brand-primary) 70%, transparent);
+
+  &:hover {
+    box-shadow: 0 12px 26px -10px var(--brand-primary);
+    filter: brightness(1.05);
+  }
+}
+
+.mat-mdc-dialog-title {
+  border-block-end: 1px solid var(--line);
+}
+
+.mat-mdc-dialog-actions {
+  border-block-start: 1px solid var(--line);
+}
+
+.mat-mdc-snack-bar-container .mdc-snackbar__surface {
+  border-radius: var(--radius-s);
+}
+
+.notification-menu.mat-mdc-menu-panel {
+  width: 24rem;
+  max-width: calc(100vw - 2rem);
+}
+
+.mat-datepicker-content {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-m);
+  box-shadow: 0 16px 40px -12px rgb(6 56 74 / 30%);
+}
+
+.mat-calendar-table-header th {
+  font-size: 0.6875rem;
+}
+
+// Fingers need larger targets than pointers.
+@media (pointer: coarse) {
+  .mat-mdc-icon-button.mat-mdc-button-base {
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+  }
+
+  .nav-link {
+    min-height: 44px;
+  }
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-s);
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+}
+
+.skip-link {
+  position: absolute;
+  inset-inline-start: var(--space-2);
+  top: -4rem;
+  z-index: 10;
+  padding: var(--space-2) var(--space-4);
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  border-radius: var(--radius-s);
+
+  &:focus {
+    top: var(--space-2);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

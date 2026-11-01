@@ -1,0 +1,92 @@
+<div class="page">
+  @if (failed(); as key) {
+    <section class="panel message">
+      <p role="alert">{{ key | translate }}</p>
+      <button matButton="outlined" (click)="back()">{{ 'assessments.myTitle' | translate }}</button>
+    </section>
+  } @else if (!attempt()) {
+    <section class="panel"><app-state-panel kind="loading" /></section>
+  } @else {
+    @let view = attempt()!;
+
+    <header class="sticky">
+      <div>
+        <h1>{{ view.title | localized }}</h1>
+        <p>{{ 'quiz.attemptOf' | translate: { number: view.number, total: view.maxAttempts } }} · {{ 'quiz.answered' | translate: { done: answered(), total: view.questions.length } }}</p>
+      </div>
+      <div class="clock" [class.urgent]="secondsLeft() <= 60" role="timer" [attr.aria-label]="'quiz.timeLeft' | translate">
+        <mat-icon aria-hidden="true">timer</mat-icon>
+        <span class="ltr-value">{{ clock() }}</span>
+      </div>
+    </header>
+
+    @for (question of view.questions; track question.id; let i = $index) {
+      <fieldset class="panel question">
+        <legend class="visually-hidden">{{ 'assessments.question' | translate: { number: i + 1 } }}</legend>
+        <p class="text"><strong>{{ i + 1 }}.</strong> {{ question.text | localized }}</p>
+        <small>{{ 'quiz.points' | translate: { points: question.points } }}</small>
+        @switch (question.kind) {
+          @case ('MultipleResponse') {
+            <p class="hint">{{ 'quiz.pickAll' | translate }}</p>
+            <div class="stack">
+              @for (option of question.options; track option.id) {
+                <mat-checkbox [checked]="isPicked(question, option.id)" (change)="togglePick(question, option.id)">{{ option.text | localized }}</mat-checkbox>
+              }
+            </div>
+          }
+          @case ('ShortAnswer') {
+            <mat-form-field subscriptSizing="dynamic">
+              <mat-label>{{ 'quiz.yourAnswer' | translate }}</mat-label>
+              <input #box matInput maxlength="500" autocomplete="off" [value]="answers()[question.id] ?? ''" (input)="draft(question, box.value)" (blur)="flush(question)" />
+            </mat-form-field>
+          }
+          @case ('Essay') {
+            <mat-form-field subscriptSizing="dynamic">
+              <mat-label>{{ 'quiz.yourAnswer' | translate }}</mat-label>
+              <textarea #box matInput rows="8" maxlength="8000" [value]="answers()[question.id] ?? ''" (input)="draft(question, box.value)" (blur)="flush(question)"></textarea>
+            </mat-form-field>
+          }
+          @case ('Numeric') {
+            <mat-form-field subscriptSizing="dynamic">
+              <mat-label>{{ 'quiz.yourNumber' | translate }}</mat-label>
+              <input #box matInput dir="ltr" inputmode="decimal" maxlength="40" autocomplete="off" [value]="answers()[question.id] ?? ''" (input)="draft(question, box.value)" (blur)="flush(question)" />
+            </mat-form-field>
+          }
+          @case ('Matching') {
+            <div class="pairs">
+              @for (option of question.options; track option.id) {
+                <div class="pair">
+                  <span>{{ option.text | localized }}</span>
+                  <mat-form-field subscriptSizing="dynamic">
+                    <mat-label>{{ 'quiz.choose' | translate }}</mat-label>
+                    <mat-select [value]="pairOf(question, option.id)" (selectionChange)="setPair(question, option.id, $event.value)">
+                      @for (choice of question.choices; track choice.key) {
+                        <mat-option [value]="choice.key">{{ choice.text | localized }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              }
+            </div>
+          }
+          @default {
+            <mat-radio-group
+              [value]="answers()[question.id]"
+              (change)="choose(question, $event.value)"
+              [attr.aria-label]="question.text | localized"
+            >
+              @for (option of question.options; track option.id) {
+                <mat-radio-button [value]="option.id">{{ option.text | localized }}</mat-radio-button>
+              }
+            </mat-radio-group>
+          }
+        }
+      </fieldset>
+    }
+
+    <footer>
+      <span class="saved" role="status">{{ (unsaved() > 0 ? 'quiz.saving' : 'quiz.saved') | translate }}</span>
+      <button matButton="filled" (click)="confirmSubmit()" [disabled]="busy() || unsaved() > 0">{{ 'quiz.submit' | translate }}</button>
+    </footer>
+  }
+</div>

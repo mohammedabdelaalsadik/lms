@@ -1,0 +1,11 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lms.Modules.Audit.Application\Lms.Modules.Audit.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Lms.BuildingBlocks.Infrastructure\Lms.BuildingBlocks.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\Identity\Lms.Modules.Identity.Domain\Lms.Modules.Identity.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Catalog\Lms.Modules.Catalog.Domain\Lms.Modules.Catalog.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Enrollment\Lms.Modules.Enrollment.Domain\Lms.Modules.Enrollment.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Learning\Lms.Modules.Learning.Domain\Lms.Modules.Learning.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Assessment\Lms.Modules.Assessment.Domain\Lms.Modules.Assessment.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Certification\Lms.Modules.Certification.Domain\Lms.Modules.Certification.Domain.csproj" />
+    <ProjectReference Include="..\..\src\BuildingBlocks\Lms.BuildingBlocks.Application\Lms.BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Notifications\Lms.Modules.Notifications.Application\Lms.Modules.Notifications.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Community\Lms.Modules.Community.Domain\Lms.Modules.Community.Domain.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Assessment\Lms.Modules.Assessment.Application\Lms.Modules.Assessment.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Identity\Lms.Modules.Identity.Application\Lms.Modules.Identity.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Learning\Lms.Modules.Learning.Application\Lms.Modules.Learning.Application.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Reports\Lms.Modules.Reports.Application\Lms.Modules.Reports.Application.csproj" />
+  </ItemGroup>
+
+</Project>

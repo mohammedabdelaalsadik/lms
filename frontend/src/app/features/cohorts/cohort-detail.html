@@ -1,0 +1,116 @@
+<div class="page">
+  <a matButton routerLink="/cohorts" class="back">
+    <mat-icon class="flip-rtl">arrow_back</mat-icon>
+    {{ 'cohorts.title' | translate }}
+  </a>
+
+  @if (resource.error()) {
+    <section class="panel"><app-state-panel kind="error" (retry)="resource.reload()" /></section>
+  } @else if (!data()) {
+    <section class="panel"><app-state-panel kind="loading" /></section>
+  } @else {
+    @let cohort = data()!.cohort;
+
+    <header class="page-header">
+      <div>
+        <h1>{{ cohort.courseTitle | localized }}</h1>
+        <p>{{ cohort.name | localized }}</p>
+      </div>
+      <div class="header-actions">
+        <a matButton="outlined" [routerLink]="['/live', id()]"><mat-icon>videocam</mat-icon>{{ 'live.title' | translate }}</a>
+        <a matButton="outlined" [routerLink]="['/wiki', id()]"><mat-icon>edit_note</mat-icon>{{ 'wiki.title' | translate }}</a>
+        <a matButton="outlined" [routerLink]="['/cohorts', id(), 'workshops']"><mat-icon>rate_review</mat-icon>{{ 'workshops.title' | translate }}</a>
+        <a matButton="outlined" [routerLink]="['/cohorts', id(), 'forms']"><mat-icon>ballot</mat-icon>{{ 'forms.resultsTitle' | translate }}</a>
+        <a matButton="outlined" [routerLink]="['/cohorts', id(), 'groups']">
+          <mat-icon>diversity_3</mat-icon>
+          {{ 'groups.title' | translate }}
+        </a>
+        <a matButton="outlined" [routerLink]="['/forum', id()]">
+          <mat-icon>forum</mat-icon>
+          {{ 'forum.title' | translate }}
+        </a>
+        <a matButton="outlined" [routerLink]="['/cohorts', id(), 'assessments']">
+          <mat-icon>quiz</mat-icon>
+          {{ 'assessments.title' | translate }}
+        </a>
+        <a matButton="outlined" [routerLink]="['/cohorts', id(), 'attendance']">
+          <mat-icon>fact_check</mat-icon>
+          {{ 'attendance.title' | translate }}
+        </a>
+        <a matButton="outlined" [routerLink]="['/cohorts', id(), 'progress']">
+          <mat-icon>monitoring</mat-icon>
+          {{ 'progress.title' | translate }}
+        </a>
+        @if (canManage() && cohort.status === 'Open') {
+          <button matButton="outlined" (click)="close()">{{ 'cohorts.close' | translate }}</button>
+        }
+      </div>
+    </header>
+
+    <section class="panel">
+      <dl class="facts">
+        <div><dt>{{ 'cohorts.branch' | translate }}</dt><dd>{{ cohort.branch }}</dd></div>
+        <div><dt>{{ 'cohorts.instructor' | translate }}</dt><dd>{{ cohort.instructorName | localized }}</dd></div>
+        <div><dt>{{ 'cohorts.startsOn' | translate }}</dt><dd>{{ cohort.startsOn | appDate }}</dd></div>
+        <div><dt>{{ 'cohorts.endsOn' | translate }}</dt><dd>{{ cohort.endsOn | appDate }}</dd></div>
+        <div>
+          <dt>{{ 'cohorts.capacity' | translate }}</dt>
+          <dd>{{ 'cohorts.seatsLeft' | translate: { left: cohort.seatsLeft, total: cohort.capacity } }}</dd>
+        </div>
+        <div><dt>{{ 'courses.status' | translate }}</dt><dd>{{ 'cohortStatus.' + cohort.status | translate }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="panel">
+      @if (data()!.entries.length === 0) {
+        <app-state-panel kind="empty" />
+      } @else {
+        <div class="scroll">
+          <table mat-table [dataSource]="data()!.entries">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>{{ 'fields.name' | translate }}</th>
+              <td mat-cell *matCellDef="let entry">{{ entry.traineeName | localized }}</td>
+            </ng-container>
+            <ng-container matColumnDef="nationalId">
+              <th mat-header-cell *matHeaderCellDef>{{ 'fields.nationalId' | translate }}</th>
+              <td mat-cell *matCellDef="let entry">
+                <span class="ltr-value">{{ entry.maskedNationalId }}</span>
+                @if (canManage()) {
+                  <button matIconButton (click)="reveal(entry)" [attr.aria-label]="'nationalId.title' | translate">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                }
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="requested">
+              <th mat-header-cell *matHeaderCellDef>{{ 'roster.requested' | translate }}</th>
+              <td mat-cell *matCellDef="let entry">{{ entry.requestedAt | appDate }}</td>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>{{ 'courses.status' | translate }}</th>
+              <td mat-cell *matCellDef="let entry">
+                {{ 'enrollmentStatus.' + entry.status | translate }}
+                @if (entry.rejectionReason) {
+                  <span class="reason">{{ entry.rejectionReason }}</span>
+                }
+              </td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef><span class="visually-hidden">{{ 'courses.actions' | translate }}</span></th>
+              <td mat-cell *matCellDef="let entry">
+                @if (canManage() && entry.status === 'Pending') {
+                  <div class="row-actions">
+                    <button matButton="filled" (click)="approve(entry)">{{ 'roster.approve' | translate }}</button>
+                    <button matButton="outlined" (click)="reject(entry)">{{ 'roster.reject' | translate }}</button>
+                  </div>
+                }
+              </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="columns"></tr>
+            <tr mat-row *matRowDef="let row; columns: columns"></tr>
+          </table>
+        </div>
+      }
+    </section>
+  }
+</div>

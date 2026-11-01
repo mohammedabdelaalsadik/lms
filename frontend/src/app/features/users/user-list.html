@@ -1,0 +1,98 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>{{ 'users.title' | translate }}</h1>
+      <p>{{ 'users.subtitle' | translate }}</p>
+    </div>
+    @if (canAssign()) {
+      <a matButton="outlined" routerLink="/users/upload"><mat-icon>upload_file</mat-icon>{{ 'upload.title' | translate }}</a>
+    }
+  </header>
+
+  <app-filter-bar
+    [label]="'users.search' | translate"
+    [search]="filters.values.search()"
+    [count]="data()?.total ?? null"
+    [active]="filters.activeCount()"
+    (searchChange)="filters.set('search', $event)"
+    (clear)="filters.clear()"
+  >
+    <app-choice-chips
+      [label]="'fields.role' | translate"
+      [choices]="roleChoices"
+      [value]="filters.values.role()"
+      (valueChange)="filters.set('role', $event)"
+    />
+  </app-filter-bar>
+
+  <section class="panel">
+    @if (resource.error()) {
+      <app-state-panel kind="error" (retry)="resource.reload()" />
+    } @else if (!data()) {
+      <app-state-panel kind="loading" />
+    } @else if (data()!.items.length === 0) {
+      <app-state-panel kind="empty" />
+    } @else {
+      <div class="scroll">
+        <table mat-table [dataSource]="data()!.items">
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>{{ 'fields.name' | translate }}</th>
+            <td mat-cell *matCellDef="let user">{{ user.fullName | localized }}</td>
+          </ng-container>
+          <ng-container matColumnDef="nationalId">
+            <th mat-header-cell *matHeaderCellDef>{{ 'fields.nationalId' | translate }}</th>
+            <td mat-cell *matCellDef="let user">
+              <span class="ltr-value">{{ user.maskedNationalId }}</span>
+              @if (canAssign()) {
+                <button matIconButton (click)="reveal(user)" [attr.aria-label]="'nationalId.title' | translate">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                <button matIconButton (click)="resetMfa(user)" [attr.aria-label]="'security.reset' | translate">
+                  <mat-icon>phonelink_erase</mat-icon>
+                </button>
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>{{ 'fields.email' | translate }}</th>
+            <td mat-cell *matCellDef="let user"><span class="ltr-value">{{ user.email }}</span></td>
+          </ng-container>
+          <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef>{{ 'fields.role' | translate }}</th>
+            <td mat-cell *matCellDef="let user">
+              @if (canAssign() && user.id !== auth.user()?.id) {
+                <mat-form-field class="role-select">
+                  <mat-select
+                    [value]="user.role"
+                    [attr.aria-label]="'fields.role' | translate"
+                    (valueChange)="changeRole(user, $event)"
+                  >
+                    @for (role of roles; track role) {
+                      <mat-option [value]="role">{{ 'role.' + role | translate }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+              } @else {
+                {{ 'role.' + user.role | translate }}
+              }
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="joined">
+            <th mat-header-cell *matHeaderCellDef>{{ 'fields.joined' | translate }}</th>
+            <td mat-cell *matCellDef="let user">{{ user.createdAt | appDate }}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columns"></tr>
+          <tr mat-row *matRowDef="let row; columns: columns"></tr>
+        </table>
+      </div>
+
+      <mat-paginator
+        [length]="data()!.total"
+        [pageIndex]="filters.page()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="onPage($event)"
+      />
+    }
+  </section>
+</div>

@@ -1,0 +1,57 @@
+<div class="page">
+  <a matButton [routerLink]="['/cohorts', id()]" class="back">
+    <mat-icon class="flip-rtl">arrow_back</mat-icon>
+    {{ 'cohorts.roster' | translate }}
+  </a>
+
+  <header class="page-header">
+    <div>
+      <h1>{{ 'attendance.title' | translate }}</h1>
+      <p>{{ 'attendance.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <section class="panel">
+    @if (resource.error()) {
+      <app-state-panel kind="error" (retry)="resource.reload()" />
+    } @else if (!data()) {
+      <app-state-panel kind="loading" />
+    } @else if (data()!.trainees.length === 0) {
+      <app-state-panel kind="empty" />
+    } @else {
+      <div class="bar">
+        <app-date-field
+          class="date"
+          [label]="'attendance.date' | translate"
+          [min]="data()!.startsOn"
+          [max]="data()!.endsOn < today ? data()!.endsOn : today"
+          [ngModel]="date()"
+          (ngModelChange)="date.set($event)"
+        />
+        <span class="hint">{{ (sheet() ? 'attendance.editing' : 'attendance.new') | translate }}</span>
+        <button matButton="filled" (click)="save()" [disabled]="busy()">{{ 'common.save' | translate }}</button>
+      </div>
+
+      <ul>
+        @for (trainee of data()!.trainees; track trainee.id) {
+          <li>
+            <div class="who">
+              <span>{{ trainee.name | localized }}</span>
+              <small class="ltr-value">{{ trainee.maskedNationalId }}</small>
+            </div>
+            <mat-button-toggle-group
+              [value]="marks()[trainee.id]"
+              (change)="mark(trainee.id, $event.value)"
+              [attr.aria-label]="trainee.name | localized"
+              hideSingleSelectionIndicator
+            >
+              @for (status of statuses; track status) {
+                <mat-button-toggle [value]="status">{{ 'attendanceStatus.' + status | translate }}</mat-button-toggle>
+              }
+            </mat-button-toggle-group>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

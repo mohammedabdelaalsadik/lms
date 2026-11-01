@@ -1,0 +1,67 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>{{ 'certificates.manageTitle' | translate }}</h1>
+      <p>{{ 'certificates.manageSubtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <app-filter-bar
+    [label]="'certificates.search' | translate"
+    [search]="filters.values.search()"
+    [count]="data()?.total ?? null"
+    [active]="filters.activeCount()"
+    (searchChange)="filters.set('search', $event)"
+    (clear)="filters.clear()"
+  >
+    <app-choice-chips
+      [label]="'courses.status' | translate"
+      [choices]="statusChoices"
+      [value]="filters.values.status()"
+      (valueChange)="filters.set('status', $event)"
+    />
+  </app-filter-bar>
+
+  <section class="panel">
+    @if (resource.error()) {
+      <app-state-panel kind="error" (retry)="resource.reload()" />
+    } @else if (!data()) {
+      <app-state-panel kind="loading" />
+    } @else if (data()!.items.length === 0) {
+      <app-state-panel kind="empty" />
+    } @else {
+      <ul>
+        @for (certificate of data()!.items; track certificate.id) {
+          <li>
+            <div class="main">
+              {{ certificate.traineeName | localized }} · {{ certificate.courseTitle | localized }}
+              <small><span class="ltr-value">{{ certificate.code }}</span> · {{ certificate.completedOn | appDate }}</small>
+              @if (certificate.revocationReason) {
+                <small>{{ 'certificates.reason' | translate }}: {{ certificate.revocationReason }}</small>
+              }
+            </div>
+            <span class="chip" [class.revoked]="certificate.status === 'Revoked'">{{ 'certificateStatus.' + certificate.status | translate }}</span>
+            <button matButton (click)="download(certificate)">
+              <mat-icon>download</mat-icon>
+              PDF
+            </button>
+            @if (canRevoke() && certificate.status === 'Issued') {
+              <button matButton="outlined" (click)="revoke(certificate)">{{ 'certificates.revoke' | translate }}</button>
+            }
+            @if (canRevoke() && certificate.status === 'Revoked' && !certificate.replacedById) {
+              <button matButton="filled" (click)="reissue(certificate)">{{ 'certificates.reissue' | translate }}</button>
+            }
+          </li>
+        }
+      </ul>
+
+      <mat-paginator
+        [length]="data()!.total"
+        [pageIndex]="filters.page()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[20, 50, 100]"
+        (page)="onPage($event)"
+      />
+    }
+  </section>
+</div>

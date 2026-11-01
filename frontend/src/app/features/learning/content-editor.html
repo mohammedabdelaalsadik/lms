@@ -1,0 +1,169 @@
+<div class="page">
+  <a matButton routerLink="/courses" class="back">
+    <mat-icon class="flip-rtl">arrow_back</mat-icon>
+    {{ 'courses.title' | translate }}
+  </a>
+
+  @if (failed()) {
+    <section class="panel"><app-state-panel kind="error" (retry)="load(id())" /></section>
+  } @else if (!content()) {
+    <section class="panel"><app-state-panel kind="loading" /></section>
+  } @else {
+    @let course = content()!;
+
+    <header class="page-header">
+      <div>
+        <h1>{{ course.courseTitle | localized }}</h1>
+        <p>{{ 'content.subtitle' | translate }}</p>
+      </div>
+      <div class="header-actions">
+        <a matButton="outlined" [routerLink]="['/glossary', id()]"><mat-icon>dictionary</mat-icon>{{ 'glossary.title' | translate }}</a>
+      <a matButton="outlined" [routerLink]="['/courses', id(), 'bin']">
+          <mat-icon>delete</mat-icon>
+          {{ 'bin.title' | translate }}
+        </a>
+        @if (canBackup()) {
+          <a matButton="outlined" [href]="backupUrl()" download>
+            <mat-icon>download</mat-icon>
+            {{ 'backup.download' | translate }}
+          </a>
+        }
+        <button matButton="filled" (click)="addSection()" [disabled]="busy()">
+          <mat-icon>add</mat-icon>
+          {{ 'content.addSection' | translate }}
+        </button>
+      </div>
+    </header>
+
+    <form class="panel settings" [formGroup]="settings" (ngSubmit)="saveSettings()">
+      <h2>{{ 'content.rulesTitle' | translate }}</h2>
+      <mat-slide-toggle formControlName="isSequential">{{
+        'content.sequential' | translate
+      }}</mat-slide-toggle>
+      <div class="fields">
+        <mat-form-field>
+          <mat-label>{{ 'content.plannedSessions' | translate }}</mat-label>
+          <input matInput type="number" min="0" formControlName="plannedSessions" />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>{{ 'content.minAttendance' | translate }}</mat-label>
+          <input matInput type="number" min="0" max="100" formControlName="minAttendancePercent" />
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>{{ 'content.passMark' | translate }}</mat-label>
+          <input matInput type="number" min="0" max="100" formControlName="passMarkPercent" />
+        </mat-form-field>
+        <button matButton="outlined" type="submit" [disabled]="busy()">
+          {{ 'common.save' | translate }}
+        </button>
+      </div>
+    </form>
+
+    @if (course.sections.length === 0) {
+      <section class="panel"><app-state-panel kind="empty" /></section>
+    }
+
+    @for (section of course.sections; track section.id; let first = $first; let last = $last) {
+      <section class="panel section">
+        <header>
+          <h2>{{ section.title | localized }}</h2>
+          <div class="tools">
+            <button
+              matIconButton
+              [disabled]="first || busy()"
+              (click)="moveSection(section, 'Up')"
+              [attr.aria-label]="'content.moveUp' | translate"
+              [matTooltip]="'content.moveUp' | translate"
+            >
+              <mat-icon>arrow_upward</mat-icon>
+            </button>
+            <button
+              matIconButton
+              [disabled]="last || busy()"
+              (click)="moveSection(section, 'Down')"
+              [attr.aria-label]="'content.moveDown' | translate"
+              [matTooltip]="'content.moveDown' | translate"
+            >
+              <mat-icon>arrow_downward</mat-icon>
+            </button>
+            <button
+              matIconButton
+              (click)="renameSection(section)"
+              [attr.aria-label]="'common.edit' | translate"
+              [matTooltip]="'common.edit' | translate"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              matIconButton
+              (click)="removeSection(section)"
+              [attr.aria-label]="'common.remove' | translate"
+              [matTooltip]="'common.remove' | translate"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </header>
+
+        <ul>
+          @for (
+            activity of section.activities;
+            track activity.id;
+            let firstItem = $first;
+            let lastItem = $last
+          ) {
+            <li>
+              <mat-icon class="kind" aria-hidden="true">{{ icons[activity.kind] }}</mat-icon>
+              <div class="name">
+                <span>{{ activity.title | localized }}</span>
+                <small>
+                  {{ 'activityKind.' + activity.kind | translate }}
+                  @if (activity.isRequired) {
+                    · {{ 'content.requiredShort' | translate }}
+                  }
+                </small>
+              </div>
+              <div class="tools">
+                <button
+                  matIconButton
+                  [disabled]="firstItem || busy()"
+                  (click)="moveActivity(activity, 'Up')"
+                  [attr.aria-label]="'content.moveUp' | translate"
+                >
+                  <mat-icon>arrow_upward</mat-icon>
+                </button>
+                <button
+                  matIconButton
+                  [disabled]="lastItem || busy()"
+                  (click)="moveActivity(activity, 'Down')"
+                  [attr.aria-label]="'content.moveDown' | translate"
+                >
+                  <mat-icon>arrow_downward</mat-icon>
+                </button>
+                <button
+                  matIconButton
+                  (click)="editActivity(activity)"
+                  [attr.aria-label]="'common.edit' | translate"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button
+                  matIconButton
+                  (click)="removeActivity(activity)"
+                  [attr.aria-label]="'common.remove' | translate"
+                >
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </li>
+          }
+        </ul>
+
+        <button matButton class="add-activity" (click)="addActivity(section)" [disabled]="busy()">
+          <mat-icon>add</mat-icon>
+          {{ 'content.addActivity' | translate }}
+        </button>
+      </section>
+    }
+  }
+</div>

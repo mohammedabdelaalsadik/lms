@@ -1,0 +1,86 @@
+<h2 mat-dialog-title>{{ 'cohorts.createTitle' | translate }}</h2>
+
+<mat-dialog-content>
+  <form id="cohort-form" [formGroup]="form" (ngSubmit)="save()">
+    @if (error(); as key) {
+      <div class="form-error" role="alert">
+        <mat-icon aria-hidden="true">error</mat-icon>
+        {{ key | translate }}
+      </div>
+    }
+
+    @if (noInstructors()) {
+      <div class="form-error" role="status">
+        <mat-icon aria-hidden="true">info</mat-icon>
+        {{ 'cohorts.noInstructors' | translate }}
+      </div>
+    }
+
+    <mat-form-field>
+      <mat-label>{{ 'cohorts.course' | translate }}</mat-label>
+      <mat-select formControlName="courseId">
+        @for (course of courses(); track course.id) {
+          <mat-option [value]="course.id">{{ course.code }} · {{ course.title | localized }}</mat-option>
+        }
+      </mat-select>
+      <mat-error>{{ 'validation.required' | translate }}</mat-error>
+    </mat-form-field>
+
+    <div class="two-up">
+      <mat-form-field>
+        <mat-label>{{ 'cohorts.nameAr' | translate }}</mat-label>
+        <input matInput dir="rtl" formControlName="nameAr" />
+        <mat-error>{{ 'validation.required' | translate }}</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>{{ 'cohorts.nameEn' | translate }}</mat-label>
+        <input matInput dir="ltr" formControlName="nameEn" />
+        <mat-error>{{ 'validation.required' | translate }}</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="two-up">
+      <mat-form-field>
+        <mat-label>{{ 'cohorts.branch' | translate }}</mat-label>
+        <input matInput formControlName="branch" />
+        <mat-error>{{ 'validation.required' | translate }}</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>{{ 'cohorts.instructor' | translate }}</mat-label>
+        <mat-select formControlName="instructorId">
+          @for (instructor of instructors(); track instructor.id) {
+            <mat-option [value]="instructor.id">{{ instructor.fullName | localized }}</mat-option>
+          }
+        </mat-select>
+        <mat-error>{{ 'validation.required' | translate }}</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="two-up">
+      <app-date-field formControlName="startsOn" [label]="'cohorts.startsOn' | translate">{{ 'validation.required' | translate }}</app-date-field>
+      <app-date-field formControlName="endsOn" [label]="'cohorts.endsOn' | translate" [min]="form.controls.startsOn.value">{{ 'validation.required' | translate }}</app-date-field>
+    </div>
+
+    @if (form.hasError('dateOrder')) {
+      <p class="date-error" role="alert">{{ 'errors.enrollment_invalid_dates' | translate }}</p>
+    }
+
+    <mat-form-field>
+      <mat-label>{{ 'cohorts.capacity' | translate }}</mat-label>
+      <input matInput type="number" min="1" formControlName="capacity" />
+      <mat-error>{{ 'validation.positive' | translate }}</mat-error>
+    </mat-form-field>
+
+    <mat-slide-toggle formControlName="requiresApproval">
+      {{ 'cohorts.requiresApproval' | translate }}
+    </mat-slide-toggle>
+    <p class="hint">{{ 'cohorts.requiresApprovalHint' | translate }}</p>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button matButton mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+  <button matButton="filled" type="submit" form="cohort-form" [disabled]="busy()">
+    {{ 'common.save' | translate }}
+  </button>
+</mat-dialog-actions>

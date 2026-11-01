@@ -1,0 +1,47 @@
+<app-auth-layout>
+  <div class="box">
+    <header>
+      <h1>{{ 'verify.title' | translate }}</h1>
+      <p>{{ 'verify.subtitle' | translate }}</p>
+    </header>
+
+    <form (submit)="submit($event)">
+      <mat-form-field>
+        <mat-label>{{ 'verify.code' | translate }}</mat-label>
+        <input matInput class="ltr-value" [formControl]="field" placeholder="XXXX-XXXX-XXXX" autocomplete="off" />
+        <mat-error>{{ 'validation.required' | translate }}</mat-error>
+      </mat-form-field>
+      <button matButton="filled" type="submit" [disabled]="busy()">{{ 'verify.check' | translate }}</button>
+    </form>
+
+    <div aria-live="polite">
+      @if (result(); as certificate) {
+        <section class="result">
+          @if (certificate.status === 'Issued') {
+            <p class="verdict"><mat-icon aria-hidden="true">verified</mat-icon>{{ 'verify.valid' | translate }}</p>
+          } @else {
+            <p class="verdict bad"><mat-icon aria-hidden="true">cancel</mat-icon>{{ 'verify.revoked' | translate }}</p>
+          }
+          <dl>
+            <div><dt>{{ 'fields.name' | translate }}</dt><dd>{{ certificate.traineeName | localized }}</dd></div>
+            <div><dt>{{ 'cohorts.course' | translate }}</dt><dd>{{ certificate.courseTitle | localized }}</dd></div>
+            <div><dt>{{ 'verify.completedOn' | translate }}</dt><dd>{{ certificate.completedOn | appDate }}</dd></div>
+            @if (certificate.revokedAt) {
+              <div><dt>{{ 'verify.revokedOn' | translate }}</dt><dd>{{ certificate.revokedAt | appDate }}</dd></div>
+            }
+          </dl>
+        </section>
+      }
+
+      @if (notFound()) {
+        <p class="form-error" role="alert"><mat-icon aria-hidden="true">error</mat-icon>{{ 'verify.notFound' | translate }}</p>
+      }
+
+      @if (error(); as key) {
+        <p class="form-error" role="alert"><mat-icon aria-hidden="true">error</mat-icon>{{ key | translate }}</p>
+      }
+    </div>
+
+    <p class="back"><a routerLink="/login">{{ 'auth.login' | translate }}</a></p>
+  </div>
+</app-auth-layout>

@@ -1,0 +1,89 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>{{ 'audit.title' | translate }}</h1>
+      <p>{{ 'audit.subtitle' | translate }}</p>
+    </div>
+    <button matButton="outlined" (click)="exportCsv()"><mat-icon>download</mat-icon>{{ 'reports.exportCsv' | translate }}</button>
+  </header>
+
+  <app-filter-bar
+    [label]="'audit.search' | translate"
+    [search]="filters.values.search()"
+    [count]="data()?.total ?? null"
+    [active]="filters.activeCount()"
+    (searchChange)="filters.set('search', $event)"
+    (clear)="filters.clear()"
+  >
+    <app-date-field class="date" [clearable]="true" [label]="'audit.from' | translate" [max]="filters.values.to() || null" [ngModel]="filters.values.from()" (ngModelChange)="filters.set('from', $event)" />
+    <app-date-field class="date" [clearable]="true" [label]="'audit.to' | translate" [min]="filters.values.from() || null" [ngModel]="filters.values.to()" (ngModelChange)="filters.set('to', $event)" />
+  </app-filter-bar>
+
+  @if (actor(); as selected) {
+    <div class="active-filter">
+      <span>{{ 'audit.onlyUser' | translate: { name: selected.name | localized } }}</span>
+      <button matIconButton (click)="clearActor()" [attr.aria-label]="'audit.clearUser' | translate">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  }
+
+  <section class="panel">
+    @if (resource.error()) {
+      <app-state-panel kind="error" (retry)="resource.reload()" />
+    } @else if (!data()) {
+      <app-state-panel kind="loading" />
+    } @else if (data()!.items.length === 0) {
+      <app-state-panel kind="empty" />
+    } @else {
+      <ul>
+        @for (entry of data()!.items; track entry.id) {
+          <li>
+            <mat-icon class="mark" [class.failed]="!entry.succeeded" aria-hidden="true">
+              {{ entry.succeeded ? 'check_circle' : 'block' }}
+            </mat-icon>
+            <div class="main">
+              <div class="line">
+                <strong>{{ actionLabel(entry.action) }}</strong>
+                @if (!entry.succeeded) {
+                  <span class="refused">{{ 'audit.refused' | translate }}</span>
+                }
+              </div>
+              <small>
+                @if (entry.actorId) {
+                  <button type="button" class="who" (click)="filterBy(entry)">
+                    {{ entry.actorName ? (entry.actorName | localized) : ('audit.unknownUser' | translate) }}
+                  </button>
+                } @else {
+                  {{ 'audit.anonymous' | translate }}
+                }
+                @if (entry.actorRole) {
+                  · {{ 'role.' + entry.actorRole | translate }}
+                }
+                @if (entry.ipAddress) {
+                  · <span class="ltr-value">{{ entry.ipAddress }}</span>
+                }
+              </small>
+              @if (reason(entry); as text) {
+                <small>{{ 'audit.reason' | translate }}: {{ text }}</small>
+              }
+              <details>
+                <summary>{{ 'audit.details' | translate }}</summary>
+                <code class="ltr-value">{{ entry.details }}</code>
+              </details>
+            </div>
+            <time>{{ time(entry.occurredAt) }}</time>
+          </li>
+        }
+      </ul>
+
+      <mat-paginator
+        [length]="data()!.total"
+        [pageIndex]="filters.page()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[20, 50, 100]"
+        (page)="onPage($event)"
+      />
+    }
+  </section>
+</div>

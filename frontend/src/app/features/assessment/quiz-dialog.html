@@ -1,0 +1,87 @@
+<h2 mat-dialog-title>{{ (quiz ? 'assessments.editQuiz' : 'assessments.newQuiz') | translate }}</h2>
+
+<mat-dialog-content>
+  <form id="quiz-form" [formGroup]="form" (ngSubmit)="save()">
+    @if (error(); as key) {
+      <div class="form-error" role="alert"><mat-icon aria-hidden="true">error</mat-icon>{{ key | translate }}</div>
+    }
+
+    <div class="two-up">
+      <mat-form-field>
+        <mat-label>{{ 'content.titleAr' | translate }}</mat-label>
+        <input matInput dir="rtl" formControlName="titleAr" />
+        <mat-error>{{ 'validation.required' | translate }}</mat-error>
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>{{ 'content.titleEn' | translate }}</mat-label>
+        <input matInput dir="ltr" formControlName="titleEn" />
+        <mat-error>{{ 'validation.required' | translate }}</mat-error>
+      </mat-form-field>
+    </div>
+
+    <div class="three-up">
+      <mat-form-field>
+        <mat-label>{{ 'assessments.timeLimit' | translate }}</mat-label>
+        <input matInput type="number" min="1" formControlName="timeLimitMinutes" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>{{ 'assessments.maxAttempts' | translate }}</mat-label>
+        <input matInput type="number" min="1" formControlName="maxAttempts" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>{{ 'assessments.weight' | translate }}</mat-label>
+        <input matInput type="number" min="1" formControlName="weight" />
+      </mat-form-field>
+    </div>
+
+    <div class="two-up">
+      <app-date-field formControlName="opensAt" [time]="true" [clearable]="true" [label]="'assessments.opensAt' | translate" />
+      <app-date-field formControlName="closesAt" [time]="true" [clearable]="true" [label]="'assessments.closesAt' | translate" />
+    </div>
+
+    <div class="two-up delivery">
+      <mat-form-field subscriptSizing="dynamic">
+        <mat-label>{{ 'bank.drawCount' | translate }}</mat-label>
+        <input matInput type="number" min="1" formControlName="drawCount" />
+        <mat-hint>{{ 'bank.drawHelp' | translate }}</mat-hint>
+      </mat-form-field>
+      <mat-checkbox formControlName="shuffle">{{ 'bank.shuffle' | translate }}</mat-checkbox>
+      <mat-form-field class="exam-key" subscriptSizing="dynamic">
+        <mat-label>{{ 'seb.key' | translate }}</mat-label>
+        <input matInput dir="ltr" maxlength="70" formControlName="examKey" />
+        <mat-hint>{{ 'seb.help' | translate }}</mat-hint>
+        <mat-error>{{ 'errors.assessment_seb_invalid_key' | translate }}</mat-error>
+      </mat-form-field>
+    </div>
+
+    @for (question of questions.controls; track question; let q = $index) {
+      <fieldset>
+        <legend>{{ 'assessments.question' | translate: { number: q + 1 } }} · {{ 'bank.kind.' + question.controls['kind'].value | translate }}</legend>
+        <app-question-fields [group]="question">
+          <button matButton type="button" (click)="removeQuestion(q)">
+            <mat-icon>delete</mat-icon>{{ 'common.remove' | translate }}
+          </button>
+        </app-question-fields>
+      </fieldset>
+    }
+
+    <div class="add-row">
+      <button matButton="outlined" type="button" [matMenuTriggerFor]="kinds">
+        <mat-icon>add</mat-icon>{{ 'bank.addQuestion' | translate }}
+      </button>
+      <mat-menu #kinds="matMenu">
+        @for (kind of kindList; track kind) {
+          <button mat-menu-item type="button" (click)="addQuestion(kind)">{{ 'bank.kind.' + kind | translate }}</button>
+        }
+      </mat-menu>
+      <button matButton="outlined" type="button" (click)="pickFromBank()">
+        <mat-icon>inventory_2</mat-icon>{{ 'bank.fromBank' | translate }}
+      </button>
+    </div>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button matButton mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+  <button matButton="filled" type="submit" form="quiz-form" [disabled]="busy()">{{ 'common.save' | translate }}</button>
+</mat-dialog-actions>

@@ -1,0 +1,100 @@
+<app-auth-layout>
+  @if (challenge()) {
+    <form class="auth-form" (submit)="$event.preventDefault(); verify()">
+      <header>
+        <h1>{{ 'security.stepTitle' | translate }}</h1>
+        <p>{{ 'security.stepHelp' | translate }}</p>
+      </header>
+
+      @if (error(); as key) {
+        <div class="form-error" role="alert">
+          <mat-icon aria-hidden="true">error</mat-icon>
+          {{ key | translate }}
+        </div>
+      }
+
+      <mat-form-field>
+        <mat-label>{{ 'security.code' | translate }}</mat-label>
+        <input
+          #codeBox
+          matInput
+          class="ltr-value"
+          name="code"
+          autocomplete="one-time-code"
+          maxlength="12"
+          [value]="code()"
+          (input)="code.set(codeBox.value)"
+        />
+      </mat-form-field>
+
+      <button matButton="filled" type="submit" [disabled]="busy() || !code().trim()">
+        {{ 'security.verify' | translate }}
+      </button>
+      <button matButton type="button" (click)="back()">{{ 'common.cancel' | translate }}</button>
+    </form>
+  } @else {
+  <form class="auth-form" [formGroup]="form" (ngSubmit)="submit()">
+    <header>
+      <h1>{{ 'auth.loginTitle' | translate }}</h1>
+      <p>{{ 'auth.loginSubtitle' | translate }}</p>
+    </header>
+
+    @if (error(); as key) {
+      <div class="form-error" role="alert">
+        <mat-icon aria-hidden="true">error</mat-icon>
+        {{ key | translate }}
+      </div>
+    }
+
+    <mat-form-field>
+      <mat-label>{{ 'fields.nationalId' | translate }}</mat-label>
+      <input
+        matInput
+        class="ltr-value"
+        formControlName="nationalId"
+        inputmode="numeric"
+        autocomplete="username"
+        maxlength="10"
+      />
+      @if (form.controls.nationalId.hasError('required')) {
+        <mat-error>{{ 'validation.required' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>{{ 'fields.password' | translate }}</mat-label>
+      <input
+        matInput
+        class="ltr-value"
+        formControlName="password"
+        autocomplete="current-password"
+        [type]="showPassword() ? 'text' : 'password'"
+      />
+      <button
+        matIconButton
+        matIconSuffix
+        type="button"
+        (click)="showPassword.set(!showPassword())"
+        [attr.aria-label]="'auth.togglePassword' | translate"
+        [attr.aria-pressed]="showPassword()"
+      >
+        <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+      </button>
+      @if (form.controls.password.hasError('required')) {
+        <mat-error>{{ 'validation.required' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <button matButton="filled" type="submit" [disabled]="busy()">
+      {{ 'auth.login' | translate }}
+    </button>
+
+    <p class="switch">
+      {{ 'auth.noAccount' | translate }}
+      <a routerLink="/register">{{ 'auth.register' | translate }}</a>
+    </p>
+    <p class="switch"><a routerLink="/reset-password">{{ 'reset.link' | translate }}</a></p>
+    <p class="switch"><a routerLink="/verify">{{ 'verify.title' | translate }}</a></p>
+  </form>
+  }
+</app-auth-layout>

@@ -1,0 +1,37 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>{{ 'nav.myEnrollments' | translate }}</h1>
+      <p>{{ 'myEnrollments.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <section class="panel">
+    @if (resource.error()) {
+      <app-state-panel kind="error" (retry)="resource.reload()" />
+    } @else if (items() === null) {
+      <app-state-panel kind="loading" />
+    } @else if (items()!.length === 0) {
+      <app-state-panel kind="empty" />
+    } @else {
+      <ul>
+        @for (item of items(); track item.enrollmentId) {
+          <li>
+            <div>
+              <h2>{{ item.cohort.courseTitle | localized }}</h2>
+              <p>{{ item.cohort.name | localized }} · {{ item.cohort.branch }}</p>
+              <p>{{ item.cohort.startsOn | appDate }} – {{ item.cohort.endsOn | appDate }}</p>
+              @if (item.rejectionReason) {
+                <p>{{ 'roster.reason' | translate }}: {{ item.rejectionReason }}</p>
+              }
+            </div>
+            <span class="status" [class]="item.status">
+              <mat-icon aria-hidden="true">{{ icons[item.status] }}</mat-icon>
+              {{ 'enrollmentStatus.' + item.status | translate }}
+            </span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+</div>

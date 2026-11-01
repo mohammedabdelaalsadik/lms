@@ -1,0 +1,172 @@
+<div class="page">
+  <a matButton routerLink="/learn" class="back">
+    <mat-icon class="flip-rtl">arrow_back</mat-icon>
+    {{ 'nav.learn' | translate }}
+  </a>
+
+  @if (resource.error()) {
+    <section class="panel"><app-state-panel kind="error" (retry)="resource.reload()" /></section>
+  } @else if (!player()) {
+    <section class="panel"><app-state-panel kind="loading" /></section>
+  } @else {
+    @let view = player()!;
+
+    <header class="page-header">
+      <div>
+        <h1>{{ view.courseTitle | localized }}</h1>
+        <p>{{ view.cohortName | localized }}</p>
+      </div>
+      <div class="header-actions">
+        <a matButton="outlined" [routerLink]="['/glossary', view.courseId]"><mat-icon>dictionary</mat-icon>{{ 'glossary.title' | translate }}</a>
+        <a matButton="outlined" [routerLink]="['/live', cohortId()]"><mat-icon>videocam</mat-icon>{{ 'live.title' | translate }}</a>
+        <a matButton="outlined" [routerLink]="['/wiki', cohortId()]"><mat-icon>edit_note</mat-icon>{{ 'wiki.title' | translate }}</a>
+        <a matButton="outlined" [routerLink]="['/learn', cohortId(), 'workshops']"><mat-icon>rate_review</mat-icon>{{ 'workshops.title' | translate }}</a>
+        <a matButton="outlined" [routerLink]="['/learn', cohortId(), 'assessments']">
+          <mat-icon>quiz</mat-icon>
+          {{ 'assessments.myTitle' | translate }}
+        </a>
+      </div>
+    </header>
+
+    @if (view.completedAt) {
+      <div class="banner done" role="status">
+        <mat-icon aria-hidden="true">verified</mat-icon>
+        <span>{{ 'learn.completedBanner' | translate }}</span>
+        <a matButton routerLink="/certificates">{{ 'nav.certificates' | translate }}</a>
+      </div>
+    }
+
+    <section class="panel summary">
+      <div class="bar">
+        <span>{{ 'learn.progress' | translate }}</span>
+        <strong class="ltr-value">{{ view.percent }}%</strong>
+        <mat-progress-bar mode="determinate" [value]="view.percent" [attr.aria-label]="'learn.progress' | translate" />
+      </div>
+      @if (!view.completedAt) {
+        <ul class="unmet">
+          @if (view.remainingActivities > 0) {
+            <li>{{ 'learn.remaining' | translate: { count: view.remainingActivities } }}</li>
+          }
+          @if (view.minAttendancePercent > 0 && !view.attendanceMet) {
+            <li>
+              {{ 'learn.attendanceNeeded' | translate: { current: view.attendancePercent, required: view.minAttendancePercent } }}
+            </li>
+          }
+          @if (view.passMarkPercent > 0) {
+            <li>
+              @if (view.finalGradePercent === null) {
+                {{ 'learn.gradeWaiting' | translate: { required: view.passMarkPercent } }}
+              } @else if (view.finalGradePercent < view.passMarkPercent) {
+                {{ 'learn.gradeNeeded' | translate: { current: view.finalGradePercent, required: view.passMarkPercent } }}
+              }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    @if (view.sections.length === 0) {
+      <section class="panel"><app-state-panel kind="empty" /></section>
+    } @else {
+      <div class="layout">
+        <nav class="panel outline" [attr.aria-label]="'learn.outline' | translate">
+          @for (section of view.sections; track section.id) {
+            <h2>{{ section.title | localized }}</h2>
+            <ul>
+              @for (activity of section.activities; track activity.id) {
+                <li>
+                  <button
+                    type="button"
+                    class="item"
+                    [class.current]="activity.id === selectedId()"
+                    [disabled]="activity.isLocked"
+                    [attr.aria-current]="activity.id === selectedId() ? 'true' : null"
+                    (click)="selectedId.set(activity.id)"
+                  >
+                    <mat-icon [class.done-icon]="activity.isCompleted" aria-hidden="true">{{ icon(activity) }}</mat-icon>
+                    <span>{{ activity.title | localized }}</span>
+                    @if (activity.isLocked) {
+                      <span class="visually-hidden">{{ 'learn.locked' | translate }}</span>
+                    }
+                    @if (activity.isCompleted) {
+                      <span class="visually-hidden">{{ 'learn.done' | translate }}</span>
+                    }
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </nav>
+
+        <article class="panel viewer">
+          @if (selected(); as activity) {
+            <h2>{{ activity.title | localized }}</h2>
+
+            @switch (activity.kind) {
+              @case ('Page') {
+                <p class="body">{{ body(activity) }}</p>
+              }
+              @case ('Video') {
+                <a matButton="outlined" [href]="activity.videoUrl" target="_blank" rel="noopener noreferrer">
+                  <mat-icon>smart_display</mat-icon>
+                  {{ 'learn.watch' | translate }}
+                </a>
+              }
+              @case ('File') {
+                <button matButton="outlined" (click)="download(activity)">
+                  <mat-icon>download</mat-icon>
+                  {{ 'learn.download' | translate }}
+                </button>
+                <p class="file ltr-value">{{ activity.fileName }}</p>
+              }
+              @case ('Book') {
+                @if (activity.book; as book) {
+                  <app-book-reader [chapters]="book.chapters" />
+                }
+              }
+              @case ('Lesson') {
+                @if (activity.lesson; as lesson) {
+                  <app-lesson-player [pages]="lesson.pages" [isDone]="activity.isCompleted" [busy]="busy()" (finished)="complete(activity)" />
+                }
+              }
+              @case ('Form') {
+                @if (activity.form; as form) {
+                  <app-form-activity [cohortId]="cohortId()" [activityId]="activity.id" [form]="form" [isDone]="activity.isCompleted" (sent)="resource.reload()" />
+                }
+              }
+              @default {
+                @if (scormUrl(); as url) {
+                  <iframe class="scorm" sandbox="allow-scripts allow-forms" [src]="url" [title]="activity.title | localized"></iframe>
+                } @else {
+                  <button matButton="outlined" [disabled]="busy() || activity.isLocked" (click)="launch(activity)">
+                    <mat-icon>play_circle</mat-icon>
+                    {{ 'learn.startPackage' | translate }}
+                  </button>
+                }
+              }
+            }
+
+            <footer>
+              @if (activity.isCompleted) {
+                <span class="finished">
+                  <mat-icon aria-hidden="true">check_circle</mat-icon>
+                  {{ 'learn.done' | translate }}
+                </span>
+              } @else if (activity.kind === 'Scorm') {
+                <span>{{ 'learn.packageFinishes' | translate }}</span>
+              } @else if (activity.kind === 'Lesson') {
+                <span>{{ 'structure.lessonFinishes' | translate }}</span>
+              } @else if (activity.kind === 'Form') {
+                <span>{{ 'forms.finishes' | translate }}</span>
+              } @else {
+                <button matButton="filled" [disabled]="busy()" (click)="complete(activity)">
+                  {{ 'learn.markDone' | translate }}
+                </button>
+              }
+            </footer>
+          }
+        </article>
+      </div>
+    }
+  }
+</div>

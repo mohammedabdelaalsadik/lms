@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup><FrameworkReference Include="Microsoft.AspNetCore.App" /></ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lms.Modules.Enrollment.Application\Lms.Modules.Enrollment.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Lms.BuildingBlocks.Presentation\Lms.BuildingBlocks.Presentation.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+  </PropertyGroup>
+
+</Project>

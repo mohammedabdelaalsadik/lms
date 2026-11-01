@@ -1,0 +1,101 @@
+<div class="page">
+  <a matButton [routerLink]="['/cohorts', id(), 'assessments']" class="back">
+    <mat-icon class="flip-rtl">arrow_back</mat-icon>
+    {{ 'assessments.title' | translate }}
+  </a>
+
+  <header class="page-header">
+    <div>
+      <h1>{{ 'grades.title' | translate }}</h1>
+      <p>{{ 'grades.subtitle' | translate }}</p>
+    </div>
+    <button matButton="outlined" (click)="exportCsv()"><mat-icon>download</mat-icon>{{ 'reports.exportCsv' | translate }}</button>
+  </header>
+
+  <section class="panel">
+    @if (resource.error()) {
+      <app-state-panel kind="error" (retry)="resource.reload()" />
+    } @else if (!data()) {
+      <app-state-panel kind="loading" />
+    } @else if (data()!.items.length === 0 || data()!.rows.length === 0) {
+      <app-state-panel kind="empty" />
+    } @else {
+      <div class="scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">{{ 'fields.name' | translate }}</th>
+              @for (item of data()!.items; track item.id) {
+                <th scope="col">
+                  <span class="item-title">{{ item.title | localized }}</span>
+                  <small>{{ 'grades.weightValue' | translate: { weight: item.weight } }}</small>
+                  @if (item.isPublished) {
+                    <small class="released"><mat-icon aria-hidden="true">check_circle</mat-icon>{{ 'grades.released' | translate }}</small>
+                  } @else {
+                    <button matButton (click)="publish(item)">{{ 'courses.publish' | translate }}</button>
+                  }
+                </th>
+              }
+              <th scope="col">{{ 'grades.final' | translate }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of data()!.rows; track row.traineeId) {
+              <tr>
+                <th scope="row">
+                  {{ row.name | localized }}
+                  <small class="ltr-value">{{ row.maskedNationalId }}</small>
+                </th>
+                @for (item of data()!.items; track item.id) {
+                  <td>
+                    @if (item.isPublished && cell(row, item) !== null) {
+                      <span class="ltr-value">{{ cell(row, item) }}</span>
+                      <button matIconButton class="small" (click)="correct(row, item)" [attr.aria-label]="'grades.requestCorrection' | translate">
+                        <mat-icon>edit_note</mat-icon>
+                      </button>
+                    } @else {
+                      <input
+                        #grade
+                        class="grade ltr-value"
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                        [value]="cell(row, item)"
+                        [attr.aria-label]="(row.name | localized) + ' - ' + (item.title | localized)"
+                        (change)="saveCell(row, item, grade.value)"
+                      />
+                    }
+                  </td>
+                }
+                <td><strong class="ltr-value">{{ row.finalGrade ?? '–' }}</strong></td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  @if (pending().length > 0) {
+    <section class="panel">
+      <h2 class="section-title">{{ 'grades.pendingCorrections' | translate }}</h2>
+      <ul>
+        @for (correction of pending(); track correction.id) {
+          <li>
+            <div>
+              {{ correction.traineeName | localized }} · {{ correction.itemTitle | localized }}
+              <small>{{ 'grades.change' | translate: { old: correction.oldPercent, new: correction.newPercent } }} · {{ correction.reason }}</small>
+            </div>
+            @if (canApprove()) {
+              <div class="decide">
+                <button matButton="filled" (click)="decide(correction, true)">{{ 'roster.approve' | translate }}</button>
+                <button matButton="outlined" (click)="decide(correction, false)">{{ 'roster.reject' | translate }}</button>
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+</div>

@@ -1,0 +1,35 @@
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 24rem;
+
+  &.wide {
+    max-width: 30rem;
+  }
+
+  h1 {
+    font: var(--mat-sys-headline-small);
+    font-weight: 600;
+  }
+
+  header p {
+    margin-block-start: var(--space-1);
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.switch {
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.two-up {
+  display: grid;
+  gap: var(--space-4);
+
+  @media (min-width: 600px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}

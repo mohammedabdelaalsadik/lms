@@ -1,0 +1,71 @@
+<h2 mat-dialog-title>
+  {{ (course ? 'courses.editTitle' : 'courses.createTitle') | translate }}
+</h2>
+
+<mat-dialog-content>
+  <form id="course-form" [formGroup]="form" (ngSubmit)="save()">
+    @if (error(); as key) {
+      <div class="form-error" role="alert">
+        <mat-icon aria-hidden="true">error</mat-icon>
+        {{ key | translate }}
+      </div>
+    }
+
+    <div class="two-up">
+      <mat-form-field>
+        <mat-label>{{ 'courses.code' | translate }}</mat-label>
+        <input matInput class="ltr-value" formControlName="code" maxlength="20" />
+        @if (form.controls.code.invalid) {
+          <mat-error>{{ 'validation.code' | translate }}</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>{{ 'courses.hours' | translate }}</mat-label>
+        <input matInput type="number" min="1" formControlName="durationHours" />
+        @if (form.controls.durationHours.invalid) {
+          <mat-error>{{ 'validation.positive' | translate }}</mat-error>
+        }
+      </mat-form-field>
+    </div>
+
+    <mat-form-field>
+      <mat-label>{{ 'courses.titleAr' | translate }}</mat-label>
+      <input matInput dir="rtl" formControlName="titleAr" />
+      @if (form.controls.titleAr.invalid) {
+        <mat-error>{{ 'validation.required' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>{{ 'courses.titleEn' | translate }}</mat-label>
+      <input matInput dir="ltr" formControlName="titleEn" />
+      @if (form.controls.titleEn.invalid) {
+        <mat-error>{{ 'validation.required' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>{{ 'courses.descriptionAr' | translate }}</mat-label>
+      <textarea matInput dir="rtl" rows="3" formControlName="descriptionAr"></textarea>
+      @if (form.controls.descriptionAr.invalid) {
+        <mat-error>{{ 'validation.required' | translate }}</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>{{ 'courses.descriptionEn' | translate }}</mat-label>
+      <textarea matInput dir="ltr" rows="3" formControlName="descriptionEn"></textarea>
+      @if (form.controls.descriptionEn.invalid) {
+        <mat-error>{{ 'validation.required' | translate }}</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button matButton mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+  <button matButton="filled" type="submit" form="course-form" [disabled]="busy()">
+    {{ 'common.save' | translate }}
+  </button>
+</mat-dialog-actions>

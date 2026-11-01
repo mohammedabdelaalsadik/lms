@@ -1,0 +1,140 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>{{ 'courses.title' | translate }}</h1>
+      <p>{{ (canManage() ? 'courses.subtitleStaff' : 'courses.subtitleTrainee') | translate }}</p>
+    </div>
+    @if (canManage()) {
+      <div class="header-actions">
+        <a matButton="outlined" routerLink="/courses/restore">
+          <mat-icon>settings_backup_restore</mat-icon>
+          {{ 'backup.title' | translate }}
+        </a>
+        <button matButton="filled" (click)="openForm(null)">
+          <mat-icon>add</mat-icon>
+          {{ 'courses.create' | translate }}
+        </button>
+      </div>
+    }
+  </header>
+
+  <app-filter-bar
+    [label]="'courses.search' | translate"
+    [search]="filters.values.search()"
+    [count]="data()?.total ?? null"
+    [active]="filters.activeCount()"
+    (searchChange)="filters.set('search', $event)"
+    (clear)="filters.clear()"
+  >
+    @if (canManage()) {
+      <app-choice-chips
+        [label]="'courses.status' | translate"
+        [choices]="statusChoices"
+        [value]="filters.values.status()"
+        (valueChange)="filters.set('status', $event)"
+      />
+    }
+    @if (categories().length > 0) {
+      <mat-form-field subscriptSizing="dynamic" class="category">
+        <mat-label>{{ 'categories.one' | translate }}</mat-label>
+        <mat-select
+          [value]="filters.values.category()"
+          (selectionChange)="filters.set('category', $event.value)"
+        >
+          <mat-option value="">{{ 'common.all' | translate }}</mat-option>
+          @for (row of categories(); track row.id) {
+            <mat-option [value]="row.id">{{ row.name | localized }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+  </app-filter-bar>
+
+  <section class="panel" [attr.aria-busy]="resource.isLoading()">
+    @if (resource.error()) {
+      <app-state-panel kind="error" (retry)="resource.reload()" />
+    } @else if (!data()) {
+      <app-state-panel kind="loading" />
+    } @else if (data()!.items.length === 0) {
+      <app-state-panel kind="empty" />
+    } @else {
+      <ul class="rows">
+        @for (course of data()!.items; track course.id) {
+          <li class="row">
+            <div class="main">
+              <div class="heading">
+                <span class="code ltr-value">{{ course.code }}</span>
+                <h2>{{ course.title | localized }}</h2>
+              </div>
+              @if (categoryName(course); as name) {
+                <small class="category-name">{{ name | localized }}</small>
+              }
+              <p>{{ course.description | localized }}</p>
+            </div>
+
+            <div class="meta">
+              <span class="hours">
+                <mat-icon aria-hidden="true">schedule</mat-icon>
+                {{ 'courses.hoursValue' | translate: { hours: course.durationHours } }}
+              </span>
+              @if (canEditContent()) {
+                <app-status-chip [status]="course.status" />
+                <button
+                  matIconButton
+                  [matMenuTriggerFor]="actions"
+                  [attr.aria-label]="'courses.actions' | translate"
+                >
+                  <mat-icon>more_vert</mat-icon>
+                </button>
+                <mat-menu #actions="matMenu">
+                  <a mat-menu-item [routerLink]="['/courses', course.id, 'content']">
+                    <mat-icon>library_books</mat-icon>{{ 'content.manage' | translate }}
+                  </a>
+                  @if (canManage() && categories().length > 0) {
+                    <button mat-menu-item [matMenuTriggerFor]="move">
+                      <mat-icon>drive_file_move</mat-icon>{{ 'categories.move' | translate }}
+                    </button>
+                    <mat-menu #move="matMenu">
+                      <button mat-menu-item (click)="moveTo(course, null)">
+                        {{ 'categories.none' | translate }}
+                      </button>
+                      @for (row of categories(); track row.id) {
+                        <button mat-menu-item (click)="moveTo(course, row.id)">
+                          {{ row.name | localized }}
+                        </button>
+                      }
+                    </mat-menu>
+                  }
+                  <a mat-menu-item [routerLink]="['/courses', course.id, 'questions']">
+                    <mat-icon>quiz</mat-icon>{{ 'bank.title' | translate }}
+                  </a>
+                  @if (canManage() && course.status === 'Draft') {
+                    <button mat-menu-item (click)="openForm(course)">
+                      <mat-icon>edit</mat-icon>{{ 'common.edit' | translate }}
+                    </button>
+                    <button mat-menu-item (click)="publish(course)">
+                      <mat-icon>publish</mat-icon>{{ 'courses.publish' | translate }}
+                    </button>
+                  }
+                  @if (canManage() && course.status === 'Published') {
+                    <button mat-menu-item (click)="archive(course)">
+                      <mat-icon>inventory_2</mat-icon>{{ 'courses.archive' | translate }}
+                    </button>
+                  }
+                </mat-menu>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+
+      <mat-paginator
+        [length]="data()!.total"
+        [pageIndex]="filters.page()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="onPage($event)"
+      />
+    }
+  </section>
+</div>

@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lms.Modules.Assessment.Domain\Lms.Modules.Assessment.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Lms.BuildingBlocks.Application\Lms.BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\..\Identity\Lms.Modules.Identity.Contracts\Lms.Modules.Identity.Contracts.csproj" />
+    <ProjectReference Include="..\..\Enrollment\Lms.Modules.Enrollment.Contracts\Lms.Modules.Enrollment.Contracts.csproj" />
+    <ProjectReference Include="..\..\Learning\Lms.Modules.Learning.Contracts\Lms.Modules.Learning.Contracts.csproj" />
+    <ProjectReference Include="..\Lms.Modules.Assessment.Contracts\Lms.Modules.Assessment.Contracts.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lms.Modules.Notifications.Domain\Lms.Modules.Notifications.Domain.csproj" />
+    <ProjectReference Include="..\Lms.Modules.Notifications.Contracts\Lms.Modules.Notifications.Contracts.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Lms.BuildingBlocks.Application\Lms.BuildingBlocks.Application.csproj" />
+    <ProjectReference Include="..\..\Catalog\Lms.Modules.Catalog.Contracts\Lms.Modules.Catalog.Contracts.csproj" />
+    <ProjectReference Include="..\..\Identity\Lms.Modules.Identity.Contracts\Lms.Modules.Identity.Contracts.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+  </PropertyGroup>
+
+</Project>

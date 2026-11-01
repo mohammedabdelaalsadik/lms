@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Lms.Modules.Community.Application\Lms.Modules.Community.Application.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\Lms.BuildingBlocks.Infrastructure\Lms.BuildingBlocks.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Notifications\Lms.Modules.Notifications.Contracts\Lms.Modules.Notifications.Contracts.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+  </PropertyGroup>
+
+</Project>

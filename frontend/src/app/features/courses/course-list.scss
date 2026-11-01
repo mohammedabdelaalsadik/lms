@@ -1,0 +1,75 @@
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3) var(--space-6);
+  padding: var(--space-4);
+  border-block-end: 1px solid var(--line);
+
+  &:hover {
+    background: var(--mat-sys-surface-container-low);
+  }
+}
+
+.main {
+  flex: 1 1 20rem;
+  min-width: 0;
+
+  p {
+    margin-block-start: var(--space-1);
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-1) var(--space-3);
+
+  h2 {
+    font: var(--mat-sys-title-medium);
+    font-weight: 600;
+  }
+}
+
+.code {
+  font: var(--mat-sys-label-medium);
+  color: var(--brand-link);
+  letter-spacing: 0.04em;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.hours {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--mat-sys-on-surface-variant);
+  white-space: nowrap;
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.category {
+  min-width: 12rem;
+}
+
+.category-name {
+  color: var(--mat-sys-on-surface-variant);
+}

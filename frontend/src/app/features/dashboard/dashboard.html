@@ -1,0 +1,111 @@
+<div class="page">
+  <header class="hero">
+    <app-drift-letters [spots]="[0, 1, 4, 5]" />
+    <div>
+      <h1>{{ 'dashboard.welcome' | translate: { name: auth.user()?.fullName | localized } }}</h1>
+      <p>{{ today() }}</p>
+    </div>
+    <app-sound-bars />
+  </header>
+
+  @if (showInsights()) {
+    <app-insights />
+  } @else {
+  <section class="stats" [attr.aria-label]="'dashboard.summary' | translate">
+    @for (stat of stats(); track stat.key) {
+      <div class="stat">
+        <mat-icon aria-hidden="true">{{ stat.icon }}</mat-icon>
+        <div>
+          <strong>{{ stat.value ?? '–' }}</strong>
+          <span>{{ stat.key | translate }}</span>
+        </div>
+      </div>
+    }
+  </section>
+  }
+
+  @if (timeline().length) {
+    <section class="panel timeline">
+      <header class="panel-header">
+        <h2>{{ 'timeline.title' | translate }}</h2>
+      </header>
+      <ul class="events">
+        @for (item of timeline(); track $index) {
+          <li>
+            <a [routerLink]="item.link">
+              <mat-icon aria-hidden="true" [class.late]="item.isOverdue">{{ timelineIcons[item.kind] }}</mat-icon>
+              <span class="event-text">
+                <span>{{ item.title | localized }}</span>
+                <small>
+                  {{ 'timeline.' + item.kind | translate }} · {{ item.cohort | localized }}
+                  @if (item.dueAt) {
+                    · {{ item.dueAt | appDate }}
+                  }
+                  @if (item.isOverdue) {
+                    · <strong class="late">{{ 'timeline.overdue' | translate }}</strong>
+                  }
+                </small>
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+    </section>
+  }
+
+  <div class="columns">
+  <section class="panel">
+    <header class="panel-header">
+      <h2>{{ 'dashboard.latestCourses' | translate }}</h2>
+      <a matButton routerLink="/courses">
+        {{ 'dashboard.viewAll' | translate }}
+        <mat-icon class="flip-rtl" iconPositionEnd>arrow_forward</mat-icon>
+      </a>
+    </header>
+
+    @if (published.error()) {
+      <app-state-panel kind="error" (retry)="published.reload()" />
+    } @else if (recent() === null) {
+      <app-state-panel kind="loading" />
+    } @else if (recent()!.length === 0) {
+      <app-state-panel kind="empty" />
+    } @else {
+      <ul>
+        @for (course of recent(); track course.id) {
+          <li>
+            <span class="code ltr-value">{{ course.code }}</span>
+            <span class="name">{{ course.title | localized }}</span>
+            <span class="hours">{{ 'courses.hoursValue' | translate: { hours: course.durationHours } }}</span>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+
+  <section class="panel">
+    <header class="panel-header">
+      <h2>{{ 'dashboard.upcoming' | translate }}</h2>
+      <a matButton routerLink="/calendar">{{ 'nav.calendar' | translate }}</a>
+    </header>
+    @if (upcoming() === null) {
+      <app-state-panel kind="loading" />
+    } @else if (upcoming()!.length === 0) {
+      <p class="nothing"><mat-icon aria-hidden="true">event_available</mat-icon>{{ 'dashboard.noUpcoming' | translate }}</p>
+    } @else {
+      <ul class="events">
+        @for (event of upcoming(); track $index) {
+          <li>
+            <a [routerLink]="event.link">
+              <mat-icon aria-hidden="true">{{ icons[event.kind] }}</mat-icon>
+              <span class="event-text">
+                <span>{{ event.title | localized }}</span>
+                <small>{{ 'calendar.kind.' + event.kind | translate }} · {{ event.date | appDate }}</small>
+              </span>
+            </a>
+          </li>
+        }
+      </ul>
+    }
+  </section>
+  </div>
+</div>

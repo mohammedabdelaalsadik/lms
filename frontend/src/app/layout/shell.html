@@ -1,0 +1,119 @@
+<a class="skip-link" href="#main">{{ 'shell.skip' | translate }}</a>
+
+<mat-sidenav-container class="container">
+  <mat-sidenav
+    #drawer
+    class="drawer"
+    [mode]="isCompact() ? 'over' : 'side'"
+    [opened]="!isCompact()"
+    [attr.aria-label]="'shell.navigation' | translate"
+  >
+    <div class="brand">
+      <app-brand-mark />
+      <span>{{ 'app.name' | translate }}</span>
+    </div>
+
+    <form class="nav-search" role="search" (submit)="$event.preventDefault(); searchEverything(drawer)">
+      <mat-icon aria-hidden="true">search</mat-icon>
+      <input
+        type="search"
+        [value]="filter()"
+        [attr.aria-label]="'shell.searchMenu' | translate"
+        [placeholder]="'shell.searchMenu' | translate"
+        (input)="filter.set($any($event.target).value)"
+        (keydown.escape)="filter.set('')"
+      />
+    </form>
+
+    <nav>
+      @for (group of shownGroups(); track group.labelKey) {
+        <button
+          type="button"
+          class="group"
+          [attr.aria-expanded]="isOpen(group)"
+          (click)="toggle(group)"
+        >
+          {{ group.labelKey | translate }}
+          <mat-icon aria-hidden="true">{{ isOpen(group) ? 'expand_less' : 'expand_more' }}</mat-icon>
+        </button>
+        @if (isOpen(group)) {
+          <div class="items">
+            @for (item of group.items; track item.path) {
+              <a
+                class="nav-link"
+                [routerLink]="item.path"
+                routerLinkActive="active"
+                [routerLinkActiveOptions]="{ exact: item.path === '/certificates' || item.path === '/users' }"
+                ariaCurrentWhenActive="page"
+                (click)="closeIfCompact(drawer)"
+              >
+                <mat-icon aria-hidden="true">{{ item.icon }}</mat-icon>
+                {{ item.labelKey | translate }}
+              </a>
+            }
+          </div>
+        }
+      }
+
+      @if (filter().trim().length >= 2) {
+        <button type="button" class="search-all" (click)="searchEverything(drawer)">
+          <mat-icon aria-hidden="true">travel_explore</mat-icon>
+          {{ 'shell.searchAll' | translate: { term: filter().trim() } }}
+        </button>
+      } @else if (filter().trim() && shownGroups().length === 0) {
+        <p class="no-match">{{ 'shell.noMatch' | translate }}</p>
+      }
+    </nav>
+
+    @if (auth.user(); as user) {
+      <div class="me">
+        <span class="avatar" aria-hidden="true">{{ initial() }}</span>
+        <span class="who">
+          <strong>{{ user.fullName | localized }}</strong>
+          <small>{{ 'role.' + user.role | translate }}</small>
+        </span>
+      </div>
+    }
+  </mat-sidenav>
+
+  <mat-sidenav-content class="content">
+    <header class="topbar">
+      @if (isCompact()) {
+        <button matIconButton (click)="drawer.toggle()" [attr.aria-label]="'shell.menu' | translate">
+          <mat-icon>menu</mat-icon>
+        </button>
+      }
+
+      <span class="spacer"></span>
+      <app-toolbar-controls />
+      <app-messages-button />
+      <app-notification-bell />
+
+      @if (auth.user(); as user) {
+        <button matButton [matMenuTriggerFor]="userMenu" class="user-button">
+          <mat-icon>account_circle</mat-icon>
+          <span class="user-name">{{ user.fullName | localized }}</span>
+        </button>
+        <mat-menu #userMenu="matMenu">
+          <div class="user-card">
+            <strong>{{ user.fullName | localized }}</strong>
+            <span>{{ 'role.' + user.role | translate }}</span>
+            <span class="ltr-value">{{ user.maskedNationalId }}</span>
+          </div>
+          <a mat-menu-item routerLink="/security">
+            <mat-icon>shield</mat-icon>
+            {{ 'security.title' | translate }}
+          </a>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon class="flip-rtl">logout</mat-icon>
+            {{ 'shell.logout' | translate }}
+          </button>
+        </mat-menu>
+      }
+    </header>
+
+    <main id="main" tabindex="-1">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

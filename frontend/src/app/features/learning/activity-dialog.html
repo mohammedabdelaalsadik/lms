@@ -1,0 +1,94 @@
+<h2 mat-dialog-title>{{ (activity ? 'content.editActivity' : 'content.addActivity') | translate }}</h2>
+
+<mat-dialog-content>
+  <form id="activity-form" [formGroup]="form" (ngSubmit)="save()">
+    <mat-form-field>
+      <mat-label>{{ 'content.kind' | translate }}</mat-label>
+      <mat-select formControlName="kind">
+        @for (item of kinds; track item) {
+          <mat-option [value]="item">{{ 'activityKind.' + item | translate }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>{{ 'content.titleAr' | translate }}</mat-label>
+      <input matInput dir="rtl" formControlName="titleAr" />
+      <mat-error>{{ 'validation.required' | translate }}</mat-error>
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>{{ 'content.titleEn' | translate }}</mat-label>
+      <input matInput dir="ltr" formControlName="titleEn" />
+      <mat-error>{{ 'validation.required' | translate }}</mat-error>
+    </mat-form-field>
+
+    @switch (kind()) {
+      @case ('Page') {
+        <mat-form-field>
+          <mat-label>{{ 'content.bodyAr' | translate }}</mat-label>
+          <textarea matInput dir="rtl" rows="5" formControlName="bodyAr"></textarea>
+          <mat-error>{{ 'validation.required' | translate }}</mat-error>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>{{ 'content.bodyEn' | translate }}</mat-label>
+          <textarea matInput dir="ltr" rows="5" formControlName="bodyEn"></textarea>
+          <mat-error>{{ 'validation.required' | translate }}</mat-error>
+        </mat-form-field>
+      }
+      @case ('Video') {
+        <mat-form-field>
+          <mat-label>{{ 'content.videoUrl' | translate }}</mat-label>
+          <input matInput class="ltr-value" type="url" formControlName="videoUrl" placeholder="https://" />
+          <mat-error>{{ 'errors.learning_invalid_video_url' | translate }}</mat-error>
+        </mat-form-field>
+      }
+      @case (kind() === 'Book' || kind() === 'Lesson' ? kind() : '') {
+        <app-structure-field [lesson]="kind() === 'Lesson'" [initial]="activity?.lesson?.pages ?? activity?.book?.chapters ?? null" />
+        @if (fileError(); as key) {
+          <p class="file-error" role="alert">{{ key | translate }}</p>
+        }
+      }
+      @case ('Form') {
+        @if (activity) {
+          <p class="picked">{{ 'forms.cannotEdit' | translate }}</p>
+        } @else {
+          <app-form-builder />
+          @if (fileError(); as key) {
+            <p class="file-error" role="alert">{{ key | translate }}</p>
+          }
+        }
+      }
+      @case (kind() === 'File' || kind() === 'Scorm' || kind() === 'H5p' ? kind() : '') {
+        @if (activity) {
+          <p class="picked ltr-value">{{ activity.fileName }}</p>
+        } @else {
+          <div class="file-row">
+            <input
+              #picker
+              hidden
+              type="file"
+              accept=".pdf,.docx,.pptx,.xlsx,.png,.jpg,.jpeg,.mp4"
+              (change)="onFile($event)"
+            />
+            <button matButton="outlined" type="button" (click)="picker.click()">
+              <mat-icon>upload_file</mat-icon>
+              {{ 'content.chooseFile' | translate }}
+            </button>
+            <span class="picked">{{ file()?.name ?? ('content.fileHint' | translate) }}</span>
+          </div>
+          @if (fileError(); as key) {
+            <p class="file-error" role="alert">{{ key | translate }}</p>
+          }
+        }
+      }
+    }
+
+    <mat-slide-toggle formControlName="isRequired">{{ 'content.required' | translate }}</mat-slide-toggle>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button matButton mat-dialog-close>{{ 'common.cancel' | translate }}</button>
+  <button matButton="filled" type="submit" form="activity-form">{{ 'common.save' | translate }}</button>
+</mat-dialog-actions>

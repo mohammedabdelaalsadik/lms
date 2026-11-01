@@ -1,0 +1,105 @@
+<div class="page">
+  <header class="page-header">
+    <div>
+      <h1>{{ 'cohorts.title' | translate }}</h1>
+      <p>{{ (isTrainee() ? 'cohorts.subtitleTrainee' : 'cohorts.subtitleStaff') | translate }}</p>
+    </div>
+    @if (canManage()) {
+      <button matButton="filled" (click)="openForm()">
+        <mat-icon>add</mat-icon>
+        {{ 'cohorts.create' | translate }}
+      </button>
+    }
+  </header>
+
+  <app-filter-bar
+    [label]="'cohorts.search' | translate"
+    [search]="filters.values.search()"
+    [count]="data()?.total ?? null"
+    [active]="filters.activeCount()"
+    (searchChange)="filters.set('search', $event)"
+    (clear)="filters.clear()"
+  >
+    @if (!isTrainee()) {
+      <app-choice-chips
+        [label]="'courses.status' | translate"
+        [choices]="statusChoices"
+        [value]="filters.values.status()"
+        (valueChange)="filters.set('status', $event)"
+      />
+    }
+  </app-filter-bar>
+
+  <section class="panel" [attr.aria-busy]="resource.isLoading()">
+    @if (resource.error()) {
+      <app-state-panel kind="error" (retry)="resource.reload()" />
+    } @else if (!data()) {
+      <app-state-panel kind="loading" />
+    } @else if (data()!.items.length === 0) {
+      <app-state-panel kind="empty" />
+    } @else {
+      <ul class="rows">
+        @for (cohort of data()!.items; track cohort.id) {
+          <li class="row">
+            <div class="main">
+              <div class="heading">
+                <span class="code ltr-value">{{ cohort.courseCode }}</span>
+                <h2>{{ cohort.courseTitle | localized }}</h2>
+              </div>
+              <p>{{ cohort.name | localized }} · {{ cohort.branch }} · {{ cohort.instructorName | localized }}</p>
+              <p class="dates">
+                <mat-icon aria-hidden="true">event</mat-icon>
+                {{ cohort.startsOn | appDate }} – {{ cohort.endsOn | appDate }}
+              </p>
+            </div>
+
+            <div class="side">
+              <span class="seats" [class.full]="cohort.seatsLeft === 0">
+                {{ 'cohorts.seatsLeft' | translate: { left: cohort.seatsLeft, total: cohort.capacity } }}
+              </span>
+
+              @if (canManage() && cohort.pendingCount > 0) {
+                <span class="pending">{{ 'cohorts.pending' | translate: { count: cohort.pendingCount } }}</span>
+              }
+
+              @if (cohort.status === 'Closed') {
+                <span class="closed">{{ 'cohortStatus.Closed' | translate }}</span>
+              }
+
+              @if (canOpenRoster()) {
+                <a matButton="outlined" [routerLink]="['/cohorts', cohort.id]">
+                  {{ 'cohorts.roster' | translate }}
+                </a>
+              }
+
+              @if (isTrainee()) {
+                @if (cohort.myStatus) {
+                  <span class="mine">{{ 'enrollmentStatus.' + cohort.myStatus | translate }}</span>
+                  <button matButton (click)="withdraw(cohort)" [disabled]="working() === cohort.id">
+                    {{ 'cohorts.withdraw' | translate }}
+                  </button>
+                } @else {
+                  <button
+                    matButton="filled"
+                    (click)="enroll(cohort)"
+                    [disabled]="working() === cohort.id || cohort.seatsLeft === 0"
+                  >
+                    {{ (cohort.requiresApproval ? 'cohorts.request' : 'cohorts.enroll') | translate }}
+                  </button>
+                }
+              }
+            </div>
+          </li>
+        }
+      </ul>
+
+      <mat-paginator
+        [length]="data()!.total"
+        [pageIndex]="filters.page()"
+        [pageSize]="pageSize()"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="onPage($event)"
+      />
+    }
+  </section>
+</div>

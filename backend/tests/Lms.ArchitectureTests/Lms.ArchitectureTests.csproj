@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NetArchTest.Rules" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Modules\Identity\Lms.Modules.Identity.Infrastructure\Lms.Modules.Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Identity\Lms.Modules.Identity.Presentation\Lms.Modules.Identity.Presentation.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Catalog\Lms.Modules.Catalog.Infrastructure\Lms.Modules.Catalog.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Catalog\Lms.Modules.Catalog.Presentation\Lms.Modules.Catalog.Presentation.csproj" />
+    <ProjectReference Include="..\..\src\Host\Lms.Api\Lms.Api.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Enrollment\Lms.Modules.Enrollment.Infrastructure\Lms.Modules.Enrollment.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Enrollment\Lms.Modules.Enrollment.Presentation\Lms.Modules.Enrollment.Presentation.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Learning\Lms.Modules.Learning.Infrastructure\Lms.Modules.Learning.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Learning\Lms.Modules.Learning.Presentation\Lms.Modules.Learning.Presentation.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Assessment\Lms.Modules.Assessment.Infrastructure\Lms.Modules.Assessment.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Assessment\Lms.Modules.Assessment.Presentation\Lms.Modules.Assessment.Presentation.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Certification\Lms.Modules.Certification.Infrastructure\Lms.Modules.Certification.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Certification\Lms.Modules.Certification.Presentation\Lms.Modules.Certification.Presentation.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Audit\Lms.Modules.Audit.Infrastructure\Lms.Modules.Audit.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Audit\Lms.Modules.Audit.Presentation\Lms.Modules.Audit.Presentation.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Notifications\Lms.Modules.Notifications.Infrastructure\Lms.Modules.Notifications.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Notifications\Lms.Modules.Notifications.Presentation\Lms.Modules.Notifications.Presentation.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Community\Lms.Modules.Community.Infrastructure\Lms.Modules.Community.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Community\Lms.Modules.Community.Presentation\Lms.Modules.Community.Presentation.csproj" />
+    <ProjectReference Include="..\..\src\Modules\Reports\Lms.Modules.Reports.Application\Lms.Modules.Reports.Application.csproj" />
+  </ItemGroup>
+
+</Project>
